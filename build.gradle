@@ -1,0 +1,70 @@
+plugins {
+    id 'org.jetbrains.kotlin.jvm' version '1.4.30'
+    id 'application'
+    id 'com.github.johnrengelman.shadow' version "5.0.0"
+    id 'org.flywaydb.flyway' version "7.7.0"
+}
+
+test {
+    useJUnitPlatform()
+}
+
+group 'org.example'
+version '1.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+    jcenter()
+}
+
+application {
+    mainClassName = 'io.ktor.server.netty.EngineMain'
+}
+
+
+shadowJar {
+    manifest {
+        attributes 'Main-Class': mainClassName
+    }
+}
+
+flyway {
+    url = 'jdbc:postgresql://localhost:5432/test'
+    user = 'test'
+    password = 'test'
+    schemas = ['test']
+}
+
+dependencies {
+    implementation "org.jetbrains.kotlin:kotlin-stdlib"
+    implementation "io.ktor:ktor-server-core:$ktor_version"
+    implementation "io.ktor:ktor-server-netty:$ktor_version"
+    implementation "ch.qos.logback:logback-classic:1.2.3"
+    implementation "io.github.microutils:kotlin-logging:1.4"
+    implementation "io.ktor:ktor-client-core:$ktor_version"
+    implementation "io.ktor:ktor-client-cio:$ktor_version"
+
+    testImplementation "io.ktor:ktor-server-test-host:1.5.2"
+    testImplementation "org.junit.jupiter:junit-jupiter-api:5.7.0"
+    testImplementation "org.testcontainers:testcontainers:1.15.0"
+    testImplementation "org.testcontainers:postgresql:1.15.2"
+    implementation "org.koin:koin-ktor:$koin_version"
+    implementation "com.zaxxer:HikariCP:$hikari_version"
+
+    implementation "org.jetbrains.exposed:exposed-core:$exposedVersion"
+    implementation "org.jetbrains.exposed:exposed-dao:$exposedVersion"
+    implementation "org.jetbrains.exposed:exposed-jdbc:$exposedVersion"
+    implementation "org.jetbrains.exposed:exposed-jodatime:0.29.1"
+    implementation "com.fasterxml.jackson.dataformat:jackson-dataformat-xml:2.12.0"
+    implementation "org.apache.commons:commons-compress:1.2"
+    implementation "org.apache.commons:commons-vfs2:2.6.0"
+    implementation "org.postgresql:postgresql:42.2.19"
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.4.2"
+    implementation "com.fasterxml.jackson.module:jackson-module-kotlin:2.12.0"
+    implementation "com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.7.3"
+
+    implementation "org.koin:koin-test:$koin_version"
+    implementation "org.koin:koin-test-junit5:2.2.2"
+    implementation "org.mockito:mockito-inline:3.8.0"
+    implementation "commons-io:commons-io:2.8.0"
+}

@@ -5,13 +5,11 @@ import com.uploader.dao.dto.BuildDto.State.CREATED
 import com.uploader.dao.repository.BuildRepository
 import com.uploader.db.DatabaseProvider
 import com.uploader.provider.BuildInfoProvider.BuildUpdateInformation
-import kotlinx.coroutines.ObsoleteCoroutinesApi
 import org.koin.core.component.KoinApiExtension
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 
 @KoinApiExtension
-@ObsoleteCoroutinesApi
 class BuildUpdatesPersister : KoinComponent {
     private val buildRepository by inject<BuildRepository>()
     private val provider by inject<DatabaseProvider>()

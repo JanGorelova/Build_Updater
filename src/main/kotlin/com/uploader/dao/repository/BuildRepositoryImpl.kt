@@ -1,13 +1,23 @@
 package com.uploader.dao.repository
 
 import com.uploader.dao.dto.BuildDto
+import com.uploader.dao.dto.BuildDto.State
+import com.uploader.dao.dto.BuildDto.State.CREATED
 import com.uploader.dao.dto.BuildDto.State.DOWNLOADED
+import com.uploader.dao.dto.BuildDto.State.FAILED
 import com.uploader.dao.dto.BuildDto.State.PROCESSING
 import com.uploader.dao.entity.Build
 import com.uploader.dao.entity.Build.id
 import com.uploader.dao.entity.Build.state
-import org.jetbrains.exposed.sql.*
+import org.jetbrains.exposed.sql.Op
+import org.jetbrains.exposed.sql.ResultRow
+import org.jetbrains.exposed.sql.SqlExpressionBuilder
+import org.jetbrains.exposed.sql.and
+import org.jetbrains.exposed.sql.insert
+import org.jetbrains.exposed.sql.select
 import org.jetbrains.exposed.sql.statements.UpdateStatement
+import org.jetbrains.exposed.sql.update
+import org.joda.time.DateTime
 
 class BuildRepositoryImpl : BuildRepository {
     override fun insert(buildDto: BuildDto): Int =
@@ -15,43 +25,50 @@ class BuildRepositoryImpl : BuildRepository {
             it[fullNumber] = buildDto.fullNumber
             it[channelId] = buildDto.channelId
             it[version] = buildDto.version
-            it[state] = buildDto.state.name
+            it[state] = CREATED.name
             it[productName] = buildDto.productName
             it[productCode] = buildDto.productCode
         }[id].value
 
-    override fun gelAllWithStates(states: List<BuildDto.State>) =
+    override fun gelAllWithStates(states: List<State>) =
         Build.select {
             state.inList(states.map { it.name })
-        }.map { it.mapToBuild() }
+        }.map { it.mapToDto() }
 
     override fun getBy(fullNumber: String, channelId: String): BuildDto? =
         Build.select {
             Build.fullNumber.eq(fullNumber).and { Build.channelId.eq(channelId) }
         }
-            .mapNotNull { it.mapToBuild() }
+            .mapNotNull { it.mapToDto() }
             .singleOrNull()
 
-    override fun processing(id: Int, previousState: BuildDto.State) {
+    override fun processing(id: Int, previousState: State) {
         update(
-            where = { Build.id.eq(Build.id).and(state.eq(previousState.name)) },
-            update = { it[state] = PROCESSING.name }
+            where = { Build.id.eq(id).and(state.eq(previousState.name)) },
+            update = {
+                it[state] = PROCESSING.name
+                it[dateUpdated] = DateTime.now()
+            }
         )
     }
 
-    override fun failed(id: Int, previousState: BuildDto.State) {
+    override fun failed(id: Int, previousState: State) {
         update(
-            where = { Build.id.eq(Build.id).and(state.eq(previousState.name)) },
-            update = { it[state] = BuildDto.State.FAILED.name }
+            where = { Build.id.eq(id).and(state.eq(previousState.name)) },
+            update = {
+                it[state] = FAILED.name
+                it[dateUpdated] = DateTime.now()
+            }
         )
     }
 
-    override fun downloaded(id: Int, previousState: BuildDto.State, path: String) {
+    override fun downloaded(id: Int, previousState: State, path: String) {
         update(
-            where = { Build.id.eq(Build.id).and(state.eq(previousState.name)) },
+            where = { Build.id.eq(id).and(state.eq(previousState.name)) },
             update = {
                 it[state] = DOWNLOADED.name
                 it[Build.path] = path
+                it[dateUpdated] = DateTime.now()
             }
         )
     }
@@ -63,15 +80,17 @@ class BuildRepositoryImpl : BuildRepository {
             throw RuntimeException("Could not update build record with id $id to $update")
     }
 
-    private fun ResultRow.mapToBuild() =
+    private fun ResultRow.mapToDto() =
         BuildDto(
             id = this[id].value,
             fullNumber = this[Build.fullNumber],
             channelId = this[Build.channelId],
-            state = BuildDto.State.valueOf(this[state]),
+            state = State.valueOf(this[state]),
             version = this[Build.version],
             productCode = this[Build.productCode],
             dateCreated = this[Build.dateCreated].toLocalDateTime(),
-            productName = this[Build.productName]
+            dateUpdated = this[Build.dateUpdated].toLocalDateTime(),
+            productName = this[Build.productName],
+            path = this[Build.path]
         )
 }

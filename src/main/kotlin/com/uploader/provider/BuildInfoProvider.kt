@@ -3,8 +3,9 @@ package com.uploader.provider
 import com.fasterxml.jackson.dataformat.xml.XmlMapper
 import com.uploader.provider.Constants.UPDATES_URL
 import com.uploader.provider.xml.Products
-import io.ktor.client.*
-import io.ktor.client.request.*
+import io.ktor.client.HttpClient
+import io.ktor.client.request.get
+import java.time.LocalDate
 import kotlinx.coroutines.runBlocking
 import org.koin.core.component.KoinApiExtension
 import org.koin.core.component.KoinComponent
@@ -33,7 +34,8 @@ class BuildInfoProvider : KoinComponent {
                             productCode = product.code,
                             channelId = channel.id,
                             fullNumer = build.fullNumber ?: "Not specified",
-                            version = build.version
+                            version = build.version,
+                            releaseDate = build.releaseDate
                         )
                     }
                 }
@@ -44,6 +46,7 @@ class BuildInfoProvider : KoinComponent {
         val productCode: String,
         val channelId: String,
         val fullNumer: String,
-        val version: String
+        val version: String,
+        val releaseDate: LocalDate?
     )
 }

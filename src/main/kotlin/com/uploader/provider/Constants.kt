@@ -1,11 +1,11 @@
 package com.uploader.provider
 
 object Constants {
-    val UPDATES_URL = "https://www.jetbrains.com/updates/updates.xml"
-    val productInfoFileName = "product-info.json"
+    const val UPDATES_URL = "https://www.jetbrains.com/updates/updates.xml"
+    const val productInfoFileName = "product-info.json"
 
     val productNameToUrl = mapOf(
-//        "IntelliJ IDEA" to "idea/ideaIU",
+//        "IntelliJ IDEA" to "idea/ideaIU"
         "CLion" to "cpp/CLion"
 //        "DataGrip" to "datagrip/datagrip",
 //        "GoLand" to "datagrip/datagrip",

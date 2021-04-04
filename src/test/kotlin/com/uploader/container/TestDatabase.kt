@@ -1,9 +1,9 @@
 package com.uploader.container
 
+import java.io.Closeable
 import mu.KLogging
 import org.testcontainers.containers.PostgreSQLContainer
 import org.testcontainers.containers.output.Slf4jLogConsumer
-import java.io.Closeable
 
 class TestDatabase : Closeable {
     private val db: PostgreSQLContainer<Db>

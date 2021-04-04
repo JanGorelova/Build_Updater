@@ -5,23 +5,23 @@ import com.uploader.dao.entity.Build
 import com.uploader.dao.entity.BuildInfo
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
-import kotlinx.coroutines.ObsoleteCoroutinesApi
-import kotlinx.coroutines.newFixedThreadPoolContext
+import kotlin.coroutines.CoroutineContext
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.SchemaUtils.create
 import org.jetbrains.exposed.sql.transactions.transaction
+import org.koin.core.component.KoinApiExtension
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
-import kotlin.coroutines.CoroutineContext
 
-@ObsoleteCoroutinesApi
+@KoinApiExtension
 class DatabaseProvider : KoinComponent {
     private val appConfig by inject<AppConfig>()
     private val dispatcher: CoroutineContext
 
     init {
-        dispatcher = newFixedThreadPoolContext(5, "database-pool")
+        dispatcher = Dispatchers.Default
         init()
     }
 
@@ -45,7 +45,7 @@ class DatabaseProvider : KoinComponent {
         return HikariDataSource(config)
     }
 
-     suspend fun <T> dbQuery(block: () -> T): T = withContext(dispatcher) {
+    suspend fun <T> dbQuery(block: () -> T): T = withContext(dispatcher) {
         transaction { block() }
     }
 }

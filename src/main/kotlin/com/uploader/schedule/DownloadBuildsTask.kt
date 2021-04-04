@@ -4,15 +4,14 @@ import com.uploader.dao.dto.BuildDto.State.CREATED
 import com.uploader.dao.repository.BuildRepository
 import com.uploader.db.DatabaseProvider
 import com.uploader.provider.BuildDownloader
+import java.util.TimerTask
 import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.ObsoleteCoroutinesApi
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import org.koin.core.component.KoinApiExtension
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
-import java.util.*
 
-@ObsoleteCoroutinesApi
 @KoinApiExtension
 class DownloadBuildsTask : TimerTask(), KoinComponent {
     private val buildRepository by inject<BuildRepository>()
@@ -20,14 +19,14 @@ class DownloadBuildsTask : TimerTask(), KoinComponent {
     private val provider by inject<DatabaseProvider>()
 
     override fun run() {
-        GlobalScope.launch {
+        runBlocking {
             provider.dbQuery {
                 buildRepository.gelAllWithStates(listOf(CREATED))
             }
-                .filter { it.fullNumber == "211.6693.66" }
-                .forEach { buildDto ->
-                    GlobalScope.launch { buildDownloader.download(buildDto) }
-                }
         }
+            .filter { it.fullNumber == "211.6693.66" }
+            .forEach { buildDto ->
+                GlobalScope.launch { buildDownloader.download(buildDto) }
+            }
     }
 }

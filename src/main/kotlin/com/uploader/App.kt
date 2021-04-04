@@ -3,37 +3,40 @@ package com.uploader
 import com.typesafe.config.ConfigFactory
 import com.uploader.config.AppConfig
 import com.uploader.module.AppModule.module
-import com.uploader.schedule.CheckNewBuildsTask
 import com.uploader.schedule.DownloadBuildsTask
 import com.uploader.schedule.Job
-import com.uploader.schedule.PersistProductInfoTask
-import io.ktor.config.*
-import io.ktor.server.engine.*
-import io.ktor.server.netty.*
-import io.ktor.util.*
-import kotlinx.coroutines.ObsoleteCoroutinesApi
-import org.koin.core.component.KoinApiExtension
+import com.uploader.schedule.PersistProductInfosTask
+import com.uploader.schedule.RefreshProductsInformationTask
+import io.ktor.config.HoconApplicationConfig
+import io.ktor.server.engine.embeddedServer
+import io.ktor.server.netty.Netty
+import io.ktor.server.netty.NettyApplicationEngine
 import java.time.Duration
+import org.koin.core.component.KoinApiExtension
 
-@ObsoleteCoroutinesApi
-class App(
-    private val environment: String
-) {
+class App(environment: String) {
     private val config: AppConfig = extractConfig(environment, HoconApplicationConfig(ConfigFactory.load()))
 
     @KoinApiExtension
-    @KtorExperimentalAPI
-    fun start() : NettyApplicationEngine =
-        embeddedServer(Netty, port = config.port, host = config.host) {
-            this.module(config)
-        }.start(false)
+    fun start(): NettyApplicationEngine =
+        embeddedServer(Netty, port = config.port, host = config.host) { this.module(config) }
+            .start(false)
             .also {
-                Job(CheckNewBuildsTask(), "Build info update")
-                Job(DownloadBuildsTask(), "Build download", delay = Duration.ofMinutes(1), period = Duration.ofSeconds(30))
-                Job(PersistProductInfoTask(), "Build info persist", delay = Duration.ofMinutes(2), period = Duration.ofSeconds(30))
+                Job(RefreshProductsInformationTask(), "Build info update")
+                Job(
+                    task = DownloadBuildsTask(),
+                    name = "Build download",
+                    delay = Duration.ofMinutes(0),
+                    period = Duration.ofSeconds(5)
+                )
+                Job(
+                    task = PersistProductInfosTask(),
+                    name = "Build info persist",
+                    delay = Duration.ofMinutes(0),
+                    period = Duration.ofSeconds(5)
+                )
             }
 
-    @KtorExperimentalAPI
     private fun extractConfig(environment: String, hoconConfig: HoconApplicationConfig): AppConfig {
         val hoconEnvironment = hoconConfig.config("ktor.deployment.$environment")
         return AppConfig(

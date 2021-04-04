@@ -1,9 +1,9 @@
 package com.uploader
 
-import io.ktor.util.*
+import org.koin.core.component.KoinApiExtension
 
-@KtorExperimentalAPI
+@KoinApiExtension
 fun main(args: Array<String>) {
+    print(args)
     App("dev").start()
 }
-

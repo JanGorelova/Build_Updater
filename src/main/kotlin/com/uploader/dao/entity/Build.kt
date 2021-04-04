@@ -11,8 +11,9 @@ object Build : IntIdTable() {
     val productCode = varchar("product_code", 50).index()
     val version = varchar("version", 50).index()
     val state = varchar("state", 20)
-    val path = varchar("path", 100).nullable()
+    val path = varchar("path", 500).nullable()
     val dateCreated = datetime("date_created").defaultExpression(CurrentDateTime())
+    val dateUpdated = datetime("date_updated").defaultExpression(CurrentDateTime())
 
     init {
         index(true, fullNumber, channelId)

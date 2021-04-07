@@ -48,8 +48,8 @@ class BuildDownloader : KoinComponent {
         if (alreadyExists(filePath, downloadData.checkSum)) return filePath
 
         val file = createFile(directory, filePath)
-        client.get<HttpStatement>(downloadData.downloadLink).execute { r ->
-            r.receive<ByteReadChannel>().copyTo(file.outputStream())
+        client.get<HttpStatement>(downloadData.downloadLink).execute { httpResponse ->
+            httpResponse.receive<ByteReadChannel>().copyTo(file.outputStream())
         }
 
         if (!verifier.isIntegral(file, downloadData.checkSum))
@@ -70,8 +70,12 @@ class BuildDownloader : KoinComponent {
     }
 
     private fun createFile(directory: String, filePath: String): File {
+        val file = File(filePath)
+        if (file.exists())
+            file.deleteRecursively()
+
         File(directory).mkdirs()
 
-        return File(filePath).also { it.createNewFile() }
+        return file.also { it.createNewFile() }
     }
 }

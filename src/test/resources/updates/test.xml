@@ -1,0 +1,37 @@
+<products>
+    <product name="CLion">
+        <code>CL</code>
+        <channel id="CL-EAP-licensing-RELEASE" name="CLion EAP licensing:RELEASE" status="eap"
+                 url="https://www.jetbrains.com/clion/nextversion" feedback="https://youtrack.jetbrains.com"
+                 majorVersion="2021" licensing="release">
+            <build number="211.6693" version="2021.1 Release Candidate" fullNumber="211.6693.66">
+                <blogPost url="https://blog.jetbrains.com/clion/2021/04/clion-2021-1-release-candidate/"/>
+                <message><![CDATA[<p><b>CLion 2021.1 Release Candidate is Here!</b></p>
+<p>The main highlights:</p>
+<ul>
+ <li>CPU profiling now works on Apple Silicon (M1 chip).</li>
+ <li>Coverage information collection performance was improved for remote toolchains.</li>
+ <li>A fix for a Clangd crash.</li>
+</ul>
+<p>For more details, please see the <a href="https://blog.jetbrains.com/clion/2021/04/clion-2021-1-release-candidate/">blog post</a>.</p>]]></message>
+                <button name="Download" url="https://www.jetbrains.com/clion/nextversion" download="true"/>
+                <button name="Release Notes"
+                        url="https://confluence.jetbrains.com/pages/viewpage.action?pageId=211353835"/>
+                <button name="More Information"
+                        url="https://blog.jetbrains.com/clion/2021/04/clion-2021-1-release-candidate/"/>
+            </build>
+        </channel>
+        <channel id="CL-EAP-licensing-EAP" name="CLion EAP" status="eap"
+                 url="https://www.jetbrains.com/clion/nextversion" feedback="https://youtrack.jetbrains.com"
+                 majorVersion="2021" licensing="eap">
+            <build number="203.5419" version="2019.3 EAP" fullNumber="203.5419.20">
+                <blogPost
+                        url="https://blog.jetbrains.com/clion/2020/10/clion-2020-3-eap-configurations-cmake-profiles"/>
+                <patch from="203.4818" size="from 100 to 114" fullFrom="203.4818.55"/>
+            </build>
+            <build number="193.5662" version="2019.3.3" releaseDate="20191204" fullNumber="193.5662.73">
+                <patch from="193.5662" size="109" fullFrom="193.5662.55"/>
+            </build>
+        </channel>
+    </product>
+</products>

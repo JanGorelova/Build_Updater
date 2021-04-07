@@ -35,10 +35,10 @@ class InformationRefresher : KoinComponent {
 
     private fun BuildUpdateInformation.releasedLessThanYearAgo(): Boolean {
         val currentYear = LocalDate.now().year
-        val yearAgo = LocalDate.now().minusYears(1)
+        val dateYearAgo = LocalDate.now().minusYears(1)
 
-        this.releaseDate?.let { return it.isAfter(yearAgo) }
+        this.releaseDate?.let { return it.isAfter(dateYearAgo) }
 
-        return version.contains(currentYear.toString()) || version.contains(yearAgo.toString())
+        return version.contains(currentYear.toString()) || version.contains(dateYearAgo.year.toString())
     }
 }

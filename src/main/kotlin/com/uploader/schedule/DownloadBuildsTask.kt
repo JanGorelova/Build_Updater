@@ -19,12 +19,7 @@ class DownloadBuildsTask : TimerTask(), KoinComponent {
     private val provider by inject<DatabaseProvider>()
 
     override fun run() {
-        runBlocking {
-            provider.dbQuery {
-                buildRepository.gelAllWithStates(listOf(CREATED))
-            }
-        }
-            .filter { it.fullNumber == "211.6693.66" }
+        runBlocking { provider.dbQuery { buildRepository.gelAllWithStates(listOf(CREATED)) } }
             .forEach { buildDto ->
                 GlobalScope.launch { buildDownloader.download(buildDto) }
             }

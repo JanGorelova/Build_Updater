@@ -8,7 +8,6 @@ object Build : IntIdTable() {
     val fullNumber = varchar("full_number", 20).index()
     val channelId = varchar("channel_id", 50).index()
     val productName = varchar("product_name", 50).index()
-    val productCode = varchar("product_code", 50).index()
     val version = varchar("version", 50).index()
     val state = varchar("state", 20)
     val path = varchar("path", 500).nullable()

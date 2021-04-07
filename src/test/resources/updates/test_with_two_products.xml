@@ -1,0 +1,62 @@
+<products>
+    <product name="WebStorm">
+        <code>WS</code>
+        <channel id="WS-RELEASE-licensing-RELEASE" name="WebStorm RELEASE" status="release"
+                 url="https://www.jetbrains.com/webstorm/download" feedback="https://youtrack.jetbrains.com"
+                 majorVersion="2021" licensing="release">
+            <build number="211.6693" version="2021.1" releaseDate="20210406" fullNumber="211.6693.108">
+                <blogPost url="https://www.jetbrains.com/webstorm/whatsnew/"/>
+                <message>
+                    <![CDATA[ <p><b>WebStorm 2021.1</b> is now available!</p> <p><a href="https://blog.jetbrains.com/webstorm/2021/04/webstorm-2021-1/">Visit our blog</a> to learn more about the new functionality and the latest enhancements.</p> <p>Here are the highlights:</p> <ul> <li>Smarter completion for JavaScript and TypeScript</li> <li>Built-in remote collaborative development service</li> <li>Support for CSS modules in Vue</li> <li>Enhancements for the HTTP client</li> <li>Better Stylelint support</li> <li>Built-in HTML preview</li> <li>Adjustable editor font weight</li> <li>Maximize tabs in the split view</li> <li>Improved work with pull requests</li> </ul> ]]>
+                </message>
+                <button name="Download" url="https://www.jetbrains.com/webstorm/download" download="true"/>
+                <button name="More Information" url="https://www.jetbrains.com/webstorm/whatsnew/"/>
+                <patch from="211.6693" size="from 24 to 25" fullFrom="211.6693.64"/>
+                <patch from="203.7717" size="from 256 to 284" fullFrom="203.7717.59"/>
+            </build>
+            <build number="203.7717" version="2019.3.3" releaseDate="20191130" fullNumber="203.7717.59">
+                <blogPost url="https://www.jetbrains.com/webstorm/whatsnew/"/>
+                <message>
+                    <![CDATA[ <p><b>WebStorm 2020.3.3</b> is now available!</p> <p>What's fixed:</p> <ul> <li>Fixed a number of regression bugs (<a href="https://youtrack.jetbrains.com/issue/WEB-48038">WEB-48038</a>, <a href="https://youtrack.jetbrains.com/issue/WEB-49135">WEB-49135</a>, <a href="https://youtrack.jetbrains.com/issue/WEB-49137">WEB-49137</a>, and <a href="https://youtrack.jetbrains.com/issue/WEB-49156">WEB-49156</a>).</li> <li>Solved the problem with high CPU usage (<a href="https://youtrack.jetbrains.com/issue/WEB-48983">WEB-48983</a>).</li> <li>Fixed the bug with Git diff changes shown incorrectly (<a href="https://youtrack.jetbrains.com/issue/IDEA-257651">IDEA-257651</a>).</li> <li>The <em>Close All but Pinned</em> action now works as expected (<a href="https://youtrack.jetbrains.com/issue/IDEA-256044">IDEA-256044</a>).</li> <li>Introduced the concept of trusted projects.</li> </ul> <p>For more details, please see the <a href="https://blog.jetbrains.com/webstorm/2021/03/webstorm-2020-3-3/">blog post</a>.</p> ]]>
+                </message>
+                <button name="Download" url="https://www.jetbrains.com/webstorm/download/previous.html#version20203"
+                        download="true"/>
+                <button name="More Information" url="https://www.jetbrains.com/webstorm/whatsnew/"/>
+                <patch from="203.7717" size="from 12 to 14" fullFrom="203.7717.18"/>
+                <patch from="203.7148" size="from 16 to 18" fullFrom="203.7148.54"/>
+            </build>
+        </channel>
+    </product>
+    <product name="PyCharm">
+        <code>PC</code>
+        <code>PCA</code>
+        <code>PY</code>
+        <code>PYA</code>
+        <channel id="PC-PY-RELEASE-licensing-RELEASE" name="PyCharm RELEASE" status="release"
+                 url="https://www.jetbrains.com/pycharm/download" feedback="https://youtrack.jetbrains.com"
+                 majorVersion="2021" licensing="release">
+            <build number="211.6693" version="2021.1" releaseDate="20210407" fullNumber="211.6693.115">
+                <blogPost url="https://blog.jetbrains.com/pycharm/2021/04/pycharm-2021-1/"/>
+                <message>
+                    <![CDATA[ <h1>PyCharm 2021.1 is out!</h1> <p>The highlights of this major release include:</p> <ul> <li>Faster indexing.</li> <li>Enhanced WSL 2 support.</li> <li>Code insight: Auto import on module member completion.</li> <li>Tool window for Python packages.</li> <li>Collaborative development tool: Code With Me.</li> <li>Built-in HTML preview.</li> </ul> <p>Read the <a href="https://blog.jetbrains.com/pycharm/2021/04/pycharm-2021-1/">blog post</a> to learn more about these features or the <a href="https://confluence.jetbrains.com/display/PYH/PyCharm+2021.1+Release+Notes">release notes</a> to check out all the changes. </p> <p></p> <p>Found a bug? Please report it using our <a href="https://youtrack.jetbrains.com/issues/PY">bug tracker</a>. </p> ]]>
+                </message>
+                <button name="Download" url="https://www.jetbrains.com/pycharm/download" download="true"/>
+                <button name="Release Notes"
+                        url="https://confluence.jetbrains.com/display/PYH/PyCharm+2021.1+Release+Notes"/>
+                <button name="More Information" url="https://blog.jetbrains.com/pycharm/2021/04/pycharm-2021-1/"/>
+                <patch from="211.6693" size="from 38 to 50" fullFrom="211.6693.77"/>
+                <patch from="203.7717" size="from 259 to 323" fullFrom="203.7717.81"/>
+            </build>
+            <build number="203.7717" version="2019.3.5" releaseDate="20191202" fullNumber="203.7717.81">
+                <message>
+                    <![CDATA[ <h1>PyCharm 2020.3.5 is out!</h1> <p></p> <p>We've patched Log4J to fix a <a href="https://nvd.nist.gov/vuln/detail/CVE-2019-17571">vulnerability issue</a>, even though it wasn't exploitable in our products. </p> <p>Do not hesitate to submit a bug request via our <a href="https://youtrack.jetbrains.com/issues/PY">bug tracker</a>. </p> ]]>
+                </message>
+                <button name="Download" url="https://www.jetbrains.com/pycharm/download/previous.html#version20203"
+                        download="true"/>
+                <button name="Release Notes"
+                        url="https://confluence.jetbrains.com/display/PYH/PyCharm+2020.3.5+Release+Notes"/>
+                <patch from="203.7717" size="from 1 to 13" fullFrom="203.7717.65"/>
+            </build>
+        </channel>
+    </product>
+</products>

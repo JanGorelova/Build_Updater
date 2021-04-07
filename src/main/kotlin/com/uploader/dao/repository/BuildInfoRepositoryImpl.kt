@@ -33,12 +33,12 @@ class BuildInfoRepositoryImpl : BuildInfoRepository, KoinComponent {
             .mapNotNull { it.mapToDto() }
             .firstOrNull()
 
-    override fun findAllByProductCode(productCode: String): Map<String, JsonNode> {
+    override fun findAllByProductName(productName: String): Map<String, JsonNode> {
         val join = Join(
             Build, BuildInfo,
             onColumn = Build.id, otherColumn = BuildInfo.buildNumber,
             joinType = INNER,
-            additionalConstraint = { Build.productCode eq productCode }
+            additionalConstraint = { Build.productName eq productName }
         )
 
         return join.selectAll()
@@ -46,12 +46,12 @@ class BuildInfoRepositoryImpl : BuildInfoRepository, KoinComponent {
             .toMap()
     }
 
-    override fun findByProductCodeAndBuildNumber(productCode: String, fullNumber: String): JsonNode {
+    override fun findByProductNameAndBuildNumber(productCode: String, fullNumber: String): JsonNode {
         val join = Join(
             Build, BuildInfo,
             onColumn = Build.id, otherColumn = BuildInfo.buildNumber,
             joinType = INNER,
-            additionalConstraint = { Build.productCode eq productCode }
+            additionalConstraint = { Build.productName eq productCode }
         )
 
         return join.select { Build.fullNumber eq fullNumber }

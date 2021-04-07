@@ -8,7 +8,7 @@ interface BuildInfoRepository {
 
     fun findByBuildId(buildId: Int): BuildInfoDto?
 
-    fun findAllByProductCode(productCode: String): Map<String, JsonNode>
+    fun findAllByProductName(productName: String): Map<String, JsonNode>
 
-    fun findByProductCodeAndBuildNumber(productCode: String, fullNumber: String): JsonNode
+    fun findByProductNameAndBuildNumber(productCode: String, fullNumber: String): JsonNode
 }

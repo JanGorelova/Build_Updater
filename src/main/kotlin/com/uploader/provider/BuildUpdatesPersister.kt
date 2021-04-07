@@ -26,7 +26,6 @@ class BuildUpdatesPersister : KoinComponent {
                 channelId = buildUpdateInformation.channelId,
                 state = CREATED,
                 version = buildUpdateInformation.version,
-                productCode = buildUpdateInformation.productCode,
                 productName = buildUpdateInformation.productName
             )
 

@@ -26,6 +26,7 @@ class BuildDownloader : KoinComponent {
 
     suspend fun download(buildDto: BuildDto) {
         val buildId = buildDto.id ?: error("Build id must be specified for $buildDto")
+
         provider.dbQuery { buildRepository.processing(buildId, buildDto.state) }
 
         val previousState = PROCESSING
@@ -42,7 +43,7 @@ class BuildDownloader : KoinComponent {
         val downloadData = downloadInfoGenerator[buildDto]
 
         val path = Paths.get("").toRealPath()
-        val directory = "$path/src/main/resources/apps/${buildDto.productCode}"
+        val directory = "$path/src/main/resources/apps/${buildDto.productName}"
         val filePath = "$directory/${buildDto.fullNumber}.tar.gz"
 
         if (alreadyExists(filePath, downloadData.checkSum)) return filePath

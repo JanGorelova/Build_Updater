@@ -4,7 +4,6 @@ import org.joda.time.LocalDateTime
 
 data class BuildDto(
     val id: Int? = null,
-    val productCode: String,
     val productName: String,
     val fullNumber: String,
     val channelId: String,

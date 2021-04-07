@@ -14,6 +14,6 @@ data class AppConfig(
 ) {
     data class JobConfig(
         val delay: Duration = Duration.ofSeconds(10),
-        val period: Duration = Duration.ofMinutes(1)
+        val period: Duration = Duration.ofSeconds(20)
     )
 }

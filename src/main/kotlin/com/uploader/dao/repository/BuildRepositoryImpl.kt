@@ -27,7 +27,6 @@ class BuildRepositoryImpl : BuildRepository {
             it[version] = buildDto.version
             it[state] = CREATED.name
             it[productName] = buildDto.productName
-            it[productCode] = buildDto.productCode
         }[id].value
 
     override fun gelAllWithStates(states: List<State>) =
@@ -48,7 +47,8 @@ class BuildRepositoryImpl : BuildRepository {
             update = {
                 it[state] = PROCESSING.name
                 it[dateUpdated] = DateTime.now()
-            }
+            },
+            id = id
         )
     }
 
@@ -58,7 +58,8 @@ class BuildRepositoryImpl : BuildRepository {
             update = {
                 it[state] = FAILED.name
                 it[dateUpdated] = DateTime.now()
-            }
+            },
+            id = id
         )
     }
 
@@ -69,15 +70,20 @@ class BuildRepositoryImpl : BuildRepository {
                 it[state] = DOWNLOADED.name
                 it[Build.path] = path
                 it[dateUpdated] = DateTime.now()
-            }
+            },
+            id = id
         )
     }
 
-    private fun update(where: (SqlExpressionBuilder.() -> Op<Boolean>), update: Build.(UpdateStatement) -> Unit) {
+    private fun update(
+        where: (SqlExpressionBuilder.() -> Op<Boolean>),
+        update: Build.(UpdateStatement) -> Unit,
+        id: Int
+    ) {
         val updatedCount = Build.update(where = where, body = update)
 
         if (updatedCount == 0)
-            throw RuntimeException("Could not update build record with id $id to $update")
+            throw RuntimeException("Could not update build record with id: $id to $update")
     }
 
     private fun ResultRow.mapToDto() =
@@ -87,7 +93,6 @@ class BuildRepositoryImpl : BuildRepository {
             channelId = this[Build.channelId],
             state = State.valueOf(this[state]),
             version = this[Build.version],
-            productCode = this[Build.productCode],
             dateCreated = this[Build.dateCreated].toLocalDateTime(),
             dateUpdated = this[Build.dateUpdated].toLocalDateTime(),
             productName = this[Build.productName],

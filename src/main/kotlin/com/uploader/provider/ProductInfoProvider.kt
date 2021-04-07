@@ -33,7 +33,7 @@ class ProductInfoProvider : KoinComponent {
         val fileObject = fileSystemManager.resolveFile(path)
 
         return when {
-            fileObject.isFile && fileObject.name.baseName.contains(productInfoFileName) -> {
+            fileObject.isFile && fileObject.name.baseName == productInfoFileName -> {
                 originalFileObject = fileObject
                 fileObject.publicURIString
             }

@@ -13,7 +13,7 @@ object AppModule {
     fun Application.module(config: AppConfig) {
         install(CallLogging)
         install(Koin) {
-            modules(KoinModule().module(config))
+            modules(KoinCommonModule().module(config), KoinJobsModule().module(config))
         }
 
         ProductInfoModule.module(this)

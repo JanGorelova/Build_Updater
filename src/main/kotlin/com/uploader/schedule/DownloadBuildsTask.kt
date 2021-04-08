@@ -1,6 +1,7 @@
 package com.uploader.schedule
 
 import com.uploader.dao.dto.BuildDto.State.CREATED
+import com.uploader.dao.dto.BuildDto.State.FAILED
 import com.uploader.dao.repository.BuildRepository
 import com.uploader.db.DatabaseProvider
 import com.uploader.provider.BuildDownloader
@@ -19,7 +20,7 @@ class DownloadBuildsTask : TimerTask(), KoinComponent {
     private val provider by inject<DatabaseProvider>()
 
     override fun run() {
-        runBlocking { provider.dbQuery { buildRepository.gelAllWithStates(listOf(CREATED)) } }
+        runBlocking { provider.dbQuery { buildRepository.gelAllWithStates(listOf(CREATED, FAILED)) } }
             .forEach { buildDto ->
                 GlobalScope.launch { buildDownloader.download(buildDto) }
             }

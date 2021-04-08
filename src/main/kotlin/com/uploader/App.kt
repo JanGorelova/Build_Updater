@@ -2,11 +2,15 @@ package com.uploader
 
 import com.typesafe.config.ConfigFactory
 import com.uploader.config.AppConfig
+import com.uploader.config.AppConfig.JobConfig
 import com.uploader.module.AppModule.module
+import com.uploader.module.JobType
+import io.ktor.config.ApplicationConfig
 import io.ktor.config.HoconApplicationConfig
 import io.ktor.server.engine.embeddedServer
 import io.ktor.server.netty.Netty
 import io.ktor.server.netty.NettyApplicationEngine
+import java.time.Duration
 import org.koin.core.component.KoinApiExtension
 
 class App(environment: String) {
@@ -26,10 +30,22 @@ class App(environment: String) {
             hoconEnvironment.property("databasePort").getString(),
             hoconEnvironment.property("databaseUser").getString(),
             hoconEnvironment.property("databasePassword").getString(),
-            hoconEnvironment.property("databaseName").getString()
+            hoconEnvironment.property("databaseName").getString(),
+            extractJobConfig(hoconEnvironment),
+            hoconEnvironment.property("rootBuildsPath").getString()
         )
     }
 
-    private fun extractJobConfig() {
+    private fun extractJobConfig(applicationConfig: ApplicationConfig): Map<JobType, JobConfig> {
+        val configs = applicationConfig.configList("jobs")
+
+        return configs
+            .map { jobConfig ->
+                JobType.valueOf(jobConfig.property("name").getString()) to JobConfig(
+                    delay = Duration.parse(jobConfig.property("delay").getString()),
+                    period = Duration.parse(jobConfig.property("period").getString()),
+                    enabled = jobConfig.property("enabled").getString().toBoolean()
+                )
+            }.toMap()
     }
 }

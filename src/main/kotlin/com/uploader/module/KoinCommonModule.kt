@@ -20,17 +20,12 @@ import com.uploader.provider.ProductInfoProvider
 import com.uploader.refresh.InformationRefresher
 import com.uploader.resource.BuildsStatusInfoProvider
 import com.uploader.resource.ProductBuildsProvider
-import com.uploader.schedule.DownloadBuildsTask
-import com.uploader.schedule.Job
-import com.uploader.schedule.PersistProductInfosTask
-import com.uploader.schedule.RefreshProductsInformationTask
 import io.ktor.client.HttpClient
 import org.koin.core.component.KoinApiExtension
-import org.koin.core.qualifier.named
 import org.koin.dsl.module
 
 @KoinApiExtension
-class KoinModule {
+class KoinCommonModule {
     fun module(configuration: AppConfig) =
         module {
             single { configuration }
@@ -50,35 +45,6 @@ class KoinModule {
             single { ProductBuildsProvider() }
             single { InformationRefresher() }
             single { ChecksumVerifier() }
-            single(named("Refresh"), createdAtStart = true) {
-                val config = configuration.jobs["RefreshProductInformation"] ?: AppConfig.JobConfig()
-
-                Job(
-                    task = RefreshProductsInformationTask(),
-                    name = "Build info update",
-                    delay = config.delay,
-                    period = config.period
-                )
-            }
-            single(named("Build"), createdAtStart = true) {
-                val config = configuration.jobs["BuildDownload"] ?: AppConfig.JobConfig()
-                Job(
-                    task = DownloadBuildsTask(),
-                    name = "Build download",
-                    delay = config.delay,
-                    period = config.period
-                )
-            }
-            single(named("Persist"), createdAtStart = true) {
-                val config = configuration.jobs["PersistProductInfo"] ?: AppConfig.JobConfig()
-
-                Job(
-                    task = PersistProductInfosTask(),
-                    name = "Build info persist",
-                    delay = config.delay,
-                    period = config.period
-                )
-            }
         }
 
     private fun mapper(): XmlMapper {

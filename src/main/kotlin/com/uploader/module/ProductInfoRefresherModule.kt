@@ -27,7 +27,7 @@ object ProductInfoRefresherModule : KoinComponent {
                 patch("/refresh/{$PRODUCT_CODE}") {
                     val code = call.extractParamValue(PRODUCT_CODE)
 
-                    informationRefresher.refresh(listOf(code))
+                    informationRefresher.refresh(setOf(code))
 
                     call.ok()
                 }

@@ -1,0 +1,18 @@
+{
+  "name": "WebStorm",
+  "version": "2021.1",
+  "buildNumber": "211.6693.108",
+  "productCode": "WS",
+  "dataDirectoryName": "WebStorm2021.1",
+  "svgIconPath": "bin/webstorm.svg",
+  "launch": [
+    {
+      "os": "Linux",
+      "launcherPath": "bin/webstorm.sh",
+      "javaExecutablePath": "jbr/bin/java",
+      "vmOptionsFilePath": "bin/webstorm64.vmoptions",
+      "startupWmClass": "jetbrains-webstorm"
+    }
+  ],
+  "customProperties": []
+}

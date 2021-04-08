@@ -17,8 +17,6 @@ data class Products(
 data class Product(
     @field:JacksonXmlProperty(isAttribute = true)
     val name: String,
-    @field:JacksonXmlProperty(localName = "code")
-    val code: String,
     @field:JacksonXmlProperty(localName = "channel")
     @field:JacksonXmlElementWrapper(useWrapping = false)
     val channels: List<Channel>

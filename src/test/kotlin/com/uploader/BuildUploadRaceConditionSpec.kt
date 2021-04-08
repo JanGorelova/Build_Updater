@@ -1,22 +1,28 @@
 package com.uploader
 
 import com.uploader.TestingTool.DOWNLOAD_PYCHARM_URL
-import com.uploader.container.TestDatabase
+import com.uploader.TestingTool.PYCHARM_CHANNEL
+import com.uploader.TestingTool.PYCHARM_FULL_NUMBER
+import com.uploader.TestingTool.PYCHARM_VERSION
 import com.uploader.dao.dto.BuildDto
 import com.uploader.dao.dto.BuildDto.State.CREATED
 import com.uploader.dao.dto.BuildDto.State.DOWNLOADED
 import com.uploader.dao.repository.BuildRepository
 import com.uploader.db.DatabaseProvider
 import com.uploader.provider.BuildDownloader
+import com.uploader.provider.Constants.PYCHARM
+import com.uploader.provider.Constants.UPDATES_URL
 import java.util.concurrent.CountDownLatch
-import java.util.concurrent.TimeUnit.SECONDS
+import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import mu.KLogging
 import org.awaitility.Awaitility.await
 import org.hamcrest.CoreMatchers.equalTo
+import org.hamcrest.CoreMatchers.nullValue
 import org.hamcrest.MatcherAssert.assertThat
+import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.koin.core.component.KoinApiExtension
@@ -32,36 +38,34 @@ class BuildUploadRaceConditionSpec : KoinTest {
     private val databaseProvider by inject<DatabaseProvider>()
 
     private lateinit var app: TestApp
-    private lateinit var db: TestDatabase
 
     private val mockedHttp = MockedHttp()
 
     @BeforeEach
     fun setup() {
-        db = TestDatabase()
-        app = TestApp()
+        app = TestApp("testWithoutRefreshJob")
         loadKoinModules(module { single(override = true) { mockedHttp.client } })
     }
 
     @Test
-    fun test() {
+    fun `file should be downloaded only one time`() {
         // given
         val toSave = BuildDto(
-            productName = "CLion",
-            fullNumber = "211.6693.66",
-            channelId = "test_channel_id",
-            version = "2021.3",
+            productName = PYCHARM,
+            fullNumber = PYCHARM_FULL_NUMBER,
+            channelId = PYCHARM_CHANNEL,
+            version = PYCHARM_VERSION,
             state = CREATED
         )
 
         runBlocking { databaseProvider.dbQuery { buildRepository.insert(toSave) } }
         val saved = runBlocking {
             databaseProvider.dbQuery { buildRepository.getBy(toSave.fullNumber, toSave.channelId) }
-        } ?: error("")
+        } ?: error("Build $toSave was not saved")
 
         // when
         val countDownLatch = CountDownLatch(4)
-        repeat(5) {
+        repeat(10) {
             GlobalScope.launch {
                 countDownLatch.countDown()
                 countDownLatch.await()
@@ -73,8 +77,9 @@ class BuildUploadRaceConditionSpec : KoinTest {
             }
         }
 
+        // then
         await()
-            .atMost(30, SECONDS)
+            .atMost(1, TimeUnit.MINUTES)
             .untilAsserted {
                 val updated = runBlocking {
                     databaseProvider.dbQuery { buildRepository.getBy(saved.fullNumber, saved.channelId) }
@@ -83,8 +88,13 @@ class BuildUploadRaceConditionSpec : KoinTest {
                 assertThat(updated?.state, equalTo(DOWNLOADED))
             }
 
-        // then
-        assertThat(mockedHttp.invocations[DOWNLOAD_PYCHARM_URL]?.get(), equalTo(1))
+        assertThat(mockedHttp.numberOfInvocations(DOWNLOAD_PYCHARM_URL), equalTo(1))
+        assertThat(mockedHttp.numberOfInvocations(UPDATES_URL), nullValue())
+    }
+
+    @AfterEach
+    fun close() {
+        app.close()
     }
 
     private companion object : KLogging()

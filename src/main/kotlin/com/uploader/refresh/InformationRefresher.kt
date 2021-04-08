@@ -3,6 +3,7 @@ package com.uploader.refresh
 import com.uploader.provider.BuildInfoProvider
 import com.uploader.provider.BuildInfoProvider.BuildUpdateInformation
 import com.uploader.provider.BuildUpdatesPersister
+import com.uploader.provider.Constants.getProductNameByProductCode
 import com.uploader.provider.Constants.productNameToUrl
 import java.time.LocalDate
 import kotlinx.coroutines.GlobalScope
@@ -16,18 +17,25 @@ class InformationRefresher : KoinComponent {
     private val infoProvider by inject<BuildInfoProvider>()
     private val persister by inject<BuildUpdatesPersister>()
 
-    fun refresh(productCodes: List<String>? = null) {
+    fun refresh(productCodes: Set<String>? = null) {
+        val productNames = productCodes?.let { mapCodesToProductNames(it) }
+
         GlobalScope.launch {
             infoProvider.provide()
-                .filter { shouldBeRefreshed(productCodes, it.productName) }
+                .filter { shouldBeRefreshed(productNames, it.productName) }
                 .filter { it.releasedLessThanYearAgo() }
                 .forEach { GlobalScope.launch { persister.saveBuildUpdateIfRequired(it) } }
         }
     }
 
-    private fun shouldBeRefreshed(productCodes: List<String>? = null, productName: String): Boolean {
-        val productsToUpdate = productCodes?.let { codes ->
-            productNameToUrl.keys.intersect(codes)
+    private fun mapCodesToProductNames(productCodes: Set<String>) =
+        productCodes.map {
+            getProductNameByProductCode(it)
+        }.toSet()
+
+    private fun shouldBeRefreshed(productNames: Set<String>? = null, productName: String): Boolean {
+        val productsToUpdate = productNames?.let { names ->
+            productNameToUrl.keys.intersect(names)
         } ?: productNameToUrl.keys
 
         return productName in productsToUpdate

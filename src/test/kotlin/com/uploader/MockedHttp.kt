@@ -11,10 +11,11 @@ import io.ktor.client.HttpClient
 import io.ktor.client.engine.mock.MockEngine
 import io.ktor.client.engine.mock.respond
 import io.ktor.utils.io.ByteReadChannel
+import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.atomic.AtomicInteger
 
 class MockedHttp {
-    val invocations = mutableMapOf<String, AtomicInteger>()
+    private val invocations = ConcurrentHashMap<String, AtomicInteger>()
 
     val client = HttpClient(MockEngine) {
         engine {
@@ -40,8 +41,11 @@ class MockedHttp {
         }
     }
 
+    fun numberOfInvocations(key: String): Int? =
+        invocations[key]?.get()
+
     private fun putIfAbsentOrIncrement(key: String) {
-        invocations.putIfAbsent(key, AtomicInteger())
+        invocations.putIfAbsent(key, AtomicInteger(1))
             ?.let { invocations[key]?.incrementAndGet() }
     }
 

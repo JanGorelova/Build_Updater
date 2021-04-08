@@ -1,6 +1,5 @@
 package com.uploader.provider
 
-import com.fasterxml.jackson.databind.ObjectMapper
 import com.uploader.provider.Constants.productInfoFileName
 import org.apache.commons.vfs2.FileObject
 import org.apache.commons.vfs2.FileSystemManager
@@ -8,11 +7,9 @@ import org.apache.commons.vfs2.VFS
 import org.apache.commons.vfs2.impl.StandardFileSystemManager
 import org.koin.core.component.KoinApiExtension
 import org.koin.core.component.KoinComponent
-import org.koin.core.component.inject
 
 @KoinApiExtension
 class ProductInfoProvider : KoinComponent {
-    private val jsonMapper by inject<ObjectMapper>()
     private var originalFileObject: FileObject? = null
 
     fun find(path: String): String {

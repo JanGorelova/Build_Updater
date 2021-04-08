@@ -1,5 +1,6 @@
 package com.uploader.provider
 
+import com.uploader.config.AppConfig
 import com.uploader.dao.dto.BuildDto
 import com.uploader.dao.dto.BuildDto.State.PROCESSING
 import com.uploader.dao.repository.BuildRepository
@@ -11,7 +12,6 @@ import io.ktor.client.statement.HttpStatement
 import io.ktor.utils.io.ByteReadChannel
 import io.ktor.utils.io.jvm.javaio.copyTo
 import java.io.File
-import java.nio.file.Paths
 import org.koin.core.component.KoinApiExtension
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
@@ -23,6 +23,9 @@ class BuildDownloader : KoinComponent {
     private val provider by inject<DatabaseProvider>()
     private val buildRepository by inject<BuildRepository>()
     private val verifier by inject<ChecksumVerifier>()
+    private val config by inject<AppConfig>()
+
+    private val path = config.rootBuildsPath
 
     suspend fun download(buildDto: BuildDto) {
         val buildId = buildDto.id ?: error("Build id must be specified for $buildDto")
@@ -42,8 +45,7 @@ class BuildDownloader : KoinComponent {
     private suspend fun downloadIfRequiredAndReturnPath(buildDto: BuildDto): String {
         val downloadData = downloadInfoGenerator[buildDto]
 
-        val path = Paths.get("").toRealPath()
-        val directory = "$path/src/main/resources/apps/${buildDto.productName}"
+        val directory = "$path${buildDto.productName}"
         val filePath = "$directory/${buildDto.fullNumber}.tar.gz"
 
         if (alreadyExists(filePath, downloadData.checkSum)) return filePath

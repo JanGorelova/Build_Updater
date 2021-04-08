@@ -31,7 +31,6 @@ class BuildInfoProvider : KoinComponent {
                     channel.builds.map { build ->
                         BuildUpdateInformation(
                             productName = product.name,
-                            productCode = product.code,
                             channelId = channel.id,
                             fullNumer = build.fullNumber ?: "Not specified",
                             version = build.version,
@@ -43,7 +42,6 @@ class BuildInfoProvider : KoinComponent {
 
     data class BuildUpdateInformation(
         val productName: String,
-        val productCode: String,
         val channelId: String,
         val fullNumer: String,
         val version: String,

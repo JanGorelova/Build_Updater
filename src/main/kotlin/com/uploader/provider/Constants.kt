@@ -39,4 +39,9 @@ object Constants {
         "RubyMine" to listOf("RM"),
         WEBSTORM to listOf("WS"),
     )
+
+    fun getProductNameByProductCode(productCode: String) =
+        supportedCodes.entries
+            .first { productCode in it.value }
+            .key
 }

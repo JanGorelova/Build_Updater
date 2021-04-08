@@ -1,33 +1,22 @@
 package com.uploader
 
-import com.fasterxml.jackson.databind.ObjectMapper
+import com.uploader.DatabaseTool.compareBuildInfos
+import com.uploader.DatabaseTool.compareBuilds
+import com.uploader.DatabaseTool.comparePyCharmBuildInfos
 import com.uploader.DatabaseTool.getAllBuildInfos
 import com.uploader.DatabaseTool.getAllBuilds
-import com.uploader.TestingTool.APP_URL
-import com.uploader.TestingTool.DOWNLOAD_PYCHARM_URL
-import com.uploader.TestingTool.DOWNLOAD_WEBSTORM_URL
-import com.uploader.TestingTool.PYCHARM_EXPECTED_INFO_JSON
-import com.uploader.TestingTool.WEBSTORM_CHANNEL
-import com.uploader.TestingTool.WEBSTORM_EXPECTED_INFO_JSON
-import com.uploader.TestingTool.WEBSTORM_FULL_NUMBER
-import com.uploader.TestingTool.WEBSTORM_VERSION
-import com.uploader.TestingTool.downloadFromResource
-import com.uploader.dao.dto.BuildDto
-import com.uploader.dao.dto.BuildDto.State.CREATED
-import com.uploader.dao.dto.BuildDto.State.PROCESSING
-import com.uploader.dao.dto.BuildInfoDto
-import com.uploader.dao.repository.BuildInfoRepository
-import com.uploader.dao.repository.BuildRepository
-import com.uploader.db.DatabaseProvider
-import com.uploader.provider.Constants.PYCHARM
+import com.uploader.TestingConstants.APP_URL
+import com.uploader.TestingConstants.AWAIT_AT_MOST_SECONDS
+import com.uploader.TestingConstants.DOWNLOAD_PYCHARM_2_URL
+import com.uploader.TestingConstants.DOWNLOAD_PYCHARM_URL
+import com.uploader.TestingConstants.DOWNLOAD_WEBSTORM_URL
 import com.uploader.provider.Constants.UPDATES_URL
-import com.uploader.provider.Constants.WEBSTORM
 import io.ktor.client.HttpClient
 import io.ktor.client.request.patch
 import io.ktor.client.statement.HttpResponse
+import io.ktor.http.HttpStatusCode.Companion.OK
 import java.util.concurrent.TimeUnit.SECONDS
 import kotlinx.coroutines.runBlocking
-import net.javacrumbs.jsonunit.JsonAssert
 import org.awaitility.Awaitility.await
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.Matchers.equalTo
@@ -37,18 +26,12 @@ import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.koin.core.component.KoinApiExtension
-import org.koin.core.component.inject
 import org.koin.core.context.loadKoinModules
 import org.koin.dsl.module
 import org.koin.test.KoinTest
 
 @KoinApiExtension
 class ProductInfoRefresherResourceSpec : KoinTest {
-    private val buildInfoRepository by inject<BuildInfoRepository>()
-    private val buildRepository by inject<BuildRepository>()
-    private val databaseProvider by inject<DatabaseProvider>()
-    private val jsonMapper by inject<ObjectMapper>()
-
     private lateinit var app: TestApp
 
     private val mockedHttp = MockedHttp()
@@ -65,54 +48,35 @@ class ProductInfoRefresherResourceSpec : KoinTest {
         // when
         val response = runBlocking { client.patch<HttpResponse>("$APP_URL/refresh") }
 
-        assertThat(response.status.value, equalTo(200))
+        assertThat(response.status, equalTo(OK))
         await()
-            .atMost(100, SECONDS)
+            .atMost(AWAIT_AT_MOST_SECONDS, SECONDS)
             .untilAsserted {
                 val builds = getAllBuilds()
-                assertThat(builds, hasSize(2))
+                assertThat(builds, hasSize(3))
 
                 val buildInfos = getAllBuildInfos()
-                assertThat(buildInfos, hasSize(2))
+                assertThat(buildInfos, hasSize(3))
+
+                compareBuilds()
+                compareBuildInfos()
             }
 
         // then
         assertThat(mockedHttp.numberOfInvocations(UPDATES_URL), equalTo(1))
         assertThat(mockedHttp.numberOfInvocations(DOWNLOAD_PYCHARM_URL), equalTo(1))
+        assertThat(mockedHttp.numberOfInvocations(DOWNLOAD_PYCHARM_2_URL), equalTo(1))
         assertThat(mockedHttp.numberOfInvocations(DOWNLOAD_WEBSTORM_URL), equalTo(1))
     }
 
     @Test
     fun `should init refresh process for specified product code`() {
-        // given
-        val toSave = BuildDto(
-            productName = WEBSTORM,
-            fullNumber = WEBSTORM_FULL_NUMBER,
-            channelId = WEBSTORM_CHANNEL,
-            version = WEBSTORM_VERSION,
-            state = CREATED
-        )
-
-        runBlocking {
-            databaseProvider.dbQuery {
-                val saved = buildRepository.insert(toSave)
-                buildRepository.processing(saved, CREATED)
-                buildRepository.downloaded(saved, PROCESSING, "test/path")
-
-                val buildInfoDto = BuildInfoDto(
-                    buildId = saved,
-                    info = downloadFromResource(WEBSTORM_EXPECTED_INFO_JSON).decodeToString()
-                )
-                buildInfoRepository.insert(buildInfoDto)
-            }
-        }
-
         // when
         val response = runBlocking { client.patch<HttpResponse>("$APP_URL/refresh/PYA") }
 
-        assertThat(response.status.value, equalTo(200))
+        assertThat(response.status, equalTo(OK))
         await()
-            .atMost(100, SECONDS)
+            .atMost(AWAIT_AT_MOST_SECONDS, SECONDS)
             .untilAsserted {
                 val builds = getAllBuilds()
                 assertThat(builds, hasSize(2))
@@ -122,16 +86,11 @@ class ProductInfoRefresherResourceSpec : KoinTest {
             }
 
         // then
-        val actualWebStormBuildInfo = runBlocking {
-            databaseProvider.dbQuery { buildInfoRepository.findAllByProductName(PYCHARM).toList().first() }
-        }
-        JsonAssert.assertJsonEquals(
-            actualWebStormBuildInfo.second,
-            jsonMapper.readTree(downloadFromResource(PYCHARM_EXPECTED_INFO_JSON))
-        )
+        comparePyCharmBuildInfos()
 
         assertThat(mockedHttp.numberOfInvocations(UPDATES_URL), equalTo(1))
         assertThat(mockedHttp.numberOfInvocations(DOWNLOAD_PYCHARM_URL), equalTo(1))
+        assertThat(mockedHttp.numberOfInvocations(DOWNLOAD_PYCHARM_2_URL), equalTo(1))
         assertThat(mockedHttp.numberOfInvocations(DOWNLOAD_WEBSTORM_URL), nullValue())
     }
 

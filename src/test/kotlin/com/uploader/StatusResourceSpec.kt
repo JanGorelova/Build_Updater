@@ -1,43 +1,86 @@
 package com.uploader
 
-import com.uploader.container.TestDatabase
+import com.uploader.DatabaseTool.doInitialSetup
+import com.uploader.TestingConstants.APP_URL
+import com.uploader.TestingTool.downloadFromResource
+import com.uploader.dao.dto.BuildDto
 import io.ktor.client.HttpClient
-import java.util.concurrent.TimeUnit
-import kotlinx.coroutines.delay
+import io.ktor.client.request.get
+import io.ktor.client.statement.HttpResponse
+import io.ktor.http.HttpStatusCode.Companion.OK
+import io.ktor.util.toByteArray
 import kotlinx.coroutines.runBlocking
-import org.awaitility.Awaitility.await
+import net.javacrumbs.jsonunit.JsonAssert.assertJsonEquals
+import org.hamcrest.CoreMatchers.equalTo
+import org.hamcrest.MatcherAssert.assertThat
+import org.joda.time.format.DateTimeFormatter
+import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.koin.core.component.KoinApiExtension
 import org.koin.core.component.inject
+import org.koin.core.context.loadKoinModules
+import org.koin.dsl.module
 import org.koin.test.KoinTest
 
 @KoinApiExtension
 class StatusResourceSpec : KoinTest {
-    private val client by inject<HttpClient>()
+    private val formatter by inject<DateTimeFormatter>()
+
+    private val mockedHttp = MockedHttp()
+    private val client = HttpClient()
 
     private lateinit var app: TestApp
-    private lateinit var db: TestDatabase
+    private lateinit var builds: List<BuildDto>
 
     @BeforeEach
     fun setup() {
-        db = TestDatabase()
-        app = TestApp()
+        app = TestApp("test")
+        loadKoinModules(module { single(override = true) { mockedHttp.client } })
+
+        builds = doInitialSetup()
     }
 
     @Test
-    fun test() {
-        // given
-
-        // create build info, start two threads at the same time and check on mock
-
+    fun `should return html with app activity info`() {
         // when
-        await()
-            .atMost(200, TimeUnit.SECONDS)
-            .untilAsserted {
-                runBlocking { delay(10000000) }
-            }
+        val response = runBlocking { client.get<HttpResponse>("$APP_URL/") }
+        val actual = runBlocking { response.content.toByteArray().decodeToString() }
 
         // then
+        assertThat(response.status, equalTo(OK))
+
+        val expected = downloadFromResource("resource/app_activity_info_html").decodeToString()
+        assertThat(actual, equalTo(withSubstitutedDates(expected)))
+    }
+
+    @Test
+    fun `should return json with app activity info`() {
+        // when
+        val response = runBlocking { client.get<HttpResponse>("$APP_URL/status") }
+        val data = runBlocking { response.content.toByteArray().decodeToString() }
+
+        // then
+        assertThat(response.status, equalTo(OK))
+
+        val expected = downloadFromResource("resource/app_activity_info_json.json").decodeToString()
+        assertJsonEquals(data, withSubstitutedDates(expected))
+    }
+
+    private fun withSubstitutedDates(expected: String) =
+        builds.fold(expected) { acc, build ->
+            val created = formatter.print(build.dateCreated)
+            val updated = formatter.print(build.dateUpdated)
+            val fullNumber = build.fullNumber
+
+            val withSubstution = acc.replace("{Created_$fullNumber}", created)
+                .replace("{Updated_$fullNumber}", updated)
+
+            withSubstution
+        }
+
+    @AfterEach
+    fun close() {
+        app.close()
     }
 }

@@ -1,46 +1,39 @@
 package com.uploader.provider
 
-import com.uploader.provider.Constants.productInfoFileName
-import org.apache.commons.vfs2.FileObject
-import org.apache.commons.vfs2.FileSystemManager
-import org.apache.commons.vfs2.VFS
+import java.io.File
+import org.apache.commons.compress.archivers.tar.TarArchiveInputStream
+import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream
 import org.apache.commons.vfs2.impl.StandardFileSystemManager
 import org.koin.core.component.KoinApiExtension
 import org.koin.core.component.KoinComponent
 
 @KoinApiExtension
 class ProductInfoProvider : KoinComponent {
-    private var originalFileObject: FileObject? = null
-
     fun find(path: String): String {
-        return VFS.getManager().use {
-            findRecursively("tgz:file:$path!/", it)
+        val filePath = findPathInTar(path) ?: error("Product info path was not found in $path")
 
-            val file = originalFileObject ?: error("")
-            val standardManager = StandardFileSystemManager().also { manager -> manager.init() }
-            val productJsonData = standardManager.use { manager ->
-                manager.resolveFile(file.publicURIString).content.byteArray
+        val standardManager = StandardFileSystemManager().also { manager -> manager.init() }
+        val productJsonData = standardManager.use { manager ->
+            manager.resolveFile("tgz:file:$path!/$filePath").content.byteArray
+        }
+
+        return productJsonData?.decodeToString() ?: error("Product info data must be specified for $path")
+    }
+
+    private fun findPathInTar(path: String): String? {
+        val file = File(path)
+        TarArchiveInputStream(GzipCompressorInputStream(file.inputStream())).use {
+            var entry = it.nextEntry
+
+            while (entry != null && entry.name.substringAfterLast("/") != PRODUCT_INFO_FILE) {
+                entry = it.nextEntry
             }
 
-            productJsonData?.decodeToString() ?: error("Product info data must be specified for $path")
+            return entry?.name
         }
     }
 
-    private fun findRecursively(path: String, fileSystemManager: FileSystemManager): String? {
-        val fileObject = fileSystemManager.resolveFile(path)
-
-        return when {
-            fileObject.isFile && fileObject.name.baseName == productInfoFileName -> {
-                originalFileObject = fileObject
-                fileObject.publicURIString
-            }
-            fileObject.isFile -> null
-            else -> fileObject.children.firstOrNull {
-                findRecursively(
-                    it.publicURIString,
-                    fileSystemManager
-                ) != null
-            }?.publicURIString
-        }
+    private companion object {
+        const val PRODUCT_INFO_FILE = "product-info.json"
     }
 }

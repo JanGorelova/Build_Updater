@@ -4,10 +4,13 @@ import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.uploader.dao.dto.BuildInfoDto
 import com.uploader.dao.entity.Build
+import com.uploader.dao.entity.Build.fullNumber
 import com.uploader.dao.entity.BuildInfo
+import com.uploader.dao.entity.BuildInfo.product_info
 import org.jetbrains.exposed.sql.Join
 import org.jetbrains.exposed.sql.JoinType.INNER
 import org.jetbrains.exposed.sql.ResultRow
+import org.jetbrains.exposed.sql.SortOrder.ASC
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.select
 import org.jetbrains.exposed.sql.selectAll
@@ -42,26 +45,27 @@ class BuildInfoRepositoryImpl : BuildInfoRepository, KoinComponent {
         )
 
         return join.selectAll()
-            .map { it[Build.fullNumber] to jsonMapper.readTree(it[BuildInfo.product_info]) }
+            .orderBy(fullNumber, ASC)
+            .map { it[fullNumber] to jsonMapper.readTree(it[product_info]) }
             .toMap()
     }
 
-    override fun findByProductNameAndBuildNumber(productCode: String, fullNumber: String): JsonNode {
+    override fun findByProductNameAndBuildNumber(productName: String, fullNumber: String): JsonNode {
         val join = Join(
             Build, BuildInfo,
             onColumn = Build.id, otherColumn = BuildInfo.buildNumber,
             joinType = INNER,
-            additionalConstraint = { Build.productName eq productCode }
+            additionalConstraint = { Build.productName eq productName }
         )
 
         return join.select { Build.fullNumber eq fullNumber }
-            .map { jsonMapper.readTree(it[BuildInfo.product_info]) }
+            .map { jsonMapper.readTree(it[product_info]) }
             .first()
     }
 
     private fun ResultRow.mapToDto() =
         BuildInfoDto(
             buildId = this[BuildInfo.buildNumber],
-            info = this[BuildInfo.product_info]
+            info = this[product_info]
         )
 }

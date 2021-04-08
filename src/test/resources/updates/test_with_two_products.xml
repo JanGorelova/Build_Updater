@@ -58,5 +58,13 @@
                 <patch from="203.7717" size="from 1 to 13" fullFrom="203.7717.65"/>
             </build>
         </channel>
+        <channel id="PC-PY-EAP-licensing-RELEASE" name="PyCharm EAP licensing:RELEASE" status="eap"
+                 url="https://www.jetbrains.com/pycharm/nextversion" feedback="https://youtrack.jetbrains.com"
+                 majorVersion="2021" licensing="release">
+            <build number="211.6693" version="2021.1 RC" fullNumber="211.6693.77">
+                <blogPost url="https://blog.jetbrains.com/pycharm/2021/03/pycharm-2021-1-rc/"/>
+                <patch from="211.6693" size="from 34 to 46" fullFrom="211.6693.23"/>
+            </build>
+        </channel>
     </product>
 </products>

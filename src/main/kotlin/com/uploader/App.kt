@@ -10,6 +10,7 @@ import io.ktor.config.HoconApplicationConfig
 import io.ktor.server.engine.embeddedServer
 import io.ktor.server.netty.Netty
 import io.ktor.server.netty.NettyApplicationEngine
+import java.nio.file.Paths
 import java.time.Duration
 import org.koin.core.component.KoinApiExtension
 
@@ -23,6 +24,7 @@ class App(environment: String) {
 
     private fun extractConfig(environment: String, hoconConfig: HoconApplicationConfig): AppConfig {
         val hoconEnvironment = hoconConfig.config("ktor.deployment.$environment")
+        val relativeBuildPath = hoconEnvironment.property("relativeBuildsPath").getString()
         return AppConfig(
             hoconEnvironment.property("host").getString(),
             Integer.parseInt(hoconEnvironment.property("port").getString()),
@@ -32,7 +34,7 @@ class App(environment: String) {
             hoconEnvironment.property("databasePassword").getString(),
             hoconEnvironment.property("databaseName").getString(),
             extractJobConfig(hoconEnvironment),
-            hoconEnvironment.property("rootBuildsPath").getString()
+            "${Paths.get("").toRealPath()}$relativeBuildPath"
         )
     }
 

@@ -13,7 +13,7 @@ import org.koin.core.qualifier.named
 import org.koin.dsl.module
 
 @KoinApiExtension
-class KoinJobsModule {
+object KoinJobsModule {
     fun module(configuration: AppConfig) =
         module {
             val refreshJobConfig = configuration.jobs[REFRESH_PRODUCT_INFORMATION]

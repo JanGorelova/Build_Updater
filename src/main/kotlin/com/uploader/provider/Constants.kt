@@ -6,11 +6,12 @@ object Constants {
 
     const val PYCHARM = "PyCharm"
     const val WEBSTORM = "WebStorm"
+    const val IDEA = "IntelliJ IDEA"
 
     val productNameToUrl = mapOf(
-        "IntelliJ IDEA" to "idea/ideaIU",
-        "CLion" to "cpp/CLion",
-        "DataGrip" to "datagrip/datagrip",
+        IDEA to "idea/ideaIU",
+//        "CLion" to "cpp/CLion",
+//        "DataGrip" to "datagrip/datagrip",
 //        "GoLand" to "datagrip/datagrip",
 //        "JetBrains DS" to "datagrip/datagrip",
 //        "MPS" to "datagrip/datagrip",
@@ -28,7 +29,7 @@ object Constants {
         "DataGrip" to listOf("DB"),
         "DataGrip" to listOf("DB"),
         "GoLand" to listOf("GO"),
-        "IntelliJ IDEA" to listOf("IC", "IU"),
+        IDEA to listOf("IC", "IU"),
         "IntelliJ IDEA Edu" to listOf("IE"),
         "MPS" to listOf("MPS"),
         "PhpStorm" to listOf("PS"),

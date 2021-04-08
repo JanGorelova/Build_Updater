@@ -17,7 +17,12 @@ class DownloadInfoGenerator : KoinComponent {
         val productName = buildDto.productName
         val productUrl = productNameToUrl[productName] ?: error("Unknown product name")
 
-        val downloadLink = "$URL$productUrl-${buildDto.fullNumber}$suffix"
+        val buildNumber = when (buildDto.version.contains(" ")) {
+            true -> buildDto.fullNumber
+            else -> buildDto.version
+        }
+
+        val downloadLink = "$URL$productUrl-${buildNumber}$suffix"
         val checkSumLink = "$downloadLink.sha256"
 
         val expectedCheckSum = runBlocking { client.get<String>(checkSumLink) }

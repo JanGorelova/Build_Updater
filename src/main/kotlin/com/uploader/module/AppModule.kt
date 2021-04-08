@@ -1,6 +1,9 @@
 package com.uploader.module
 
 import com.uploader.config.AppConfig
+import com.uploader.module.resource.ProductInfoRefresherResourceModule
+import com.uploader.module.resource.ProductInfoResourceModule
+import com.uploader.module.resource.StatusResourceModule
 import io.ktor.application.Application
 import io.ktor.application.install
 import io.ktor.features.CallLogging
@@ -13,12 +16,12 @@ object AppModule {
     fun Application.module(config: AppConfig) {
         install(CallLogging)
         install(Koin) {
-            modules(KoinCommonModule().module(config), KoinJobsModule().module(config))
+            modules(KoinCommonModule.module(config), KoinJobsModule.module(config))
         }
 
-        ProductInfoModule.module(this)
-        ProductInfoRefresherModule.module(this)
-        StatusRoutingModule.module(this)
+        ProductInfoResourceModule.module(this)
+        ProductInfoRefresherResourceModule.module(this)
+        StatusResourceModule.module(this)
         KtorModule.module(this)
     }
 }

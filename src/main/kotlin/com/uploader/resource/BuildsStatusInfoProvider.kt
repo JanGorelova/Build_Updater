@@ -4,7 +4,7 @@ import com.uploader.dao.dto.BuildDto.State
 import com.uploader.dao.repository.BuildRepository
 import com.uploader.db.DatabaseProvider
 import kotlinx.coroutines.runBlocking
-import org.joda.time.format.DateTimeFormat
+import org.joda.time.format.DateTimeFormatter
 import org.koin.core.component.KoinApiExtension
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
@@ -13,8 +13,7 @@ import org.koin.core.component.inject
 class BuildsStatusInfoProvider : KoinComponent {
     private val buildRepository by inject<BuildRepository>()
     private val provider by inject<DatabaseProvider>()
-
-    private val formatter = DateTimeFormat.forPattern("MM/dd/yyyy HH:mm")
+    private val formatter by inject<DateTimeFormatter>()
 
     fun provide(): List<BuildStatusInfo> =
         runBlocking {

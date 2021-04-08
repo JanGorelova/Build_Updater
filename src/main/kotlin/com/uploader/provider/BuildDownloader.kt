@@ -7,6 +7,7 @@ import com.uploader.dao.repository.BuildRepository
 import com.uploader.db.DatabaseProvider
 import io.ktor.client.HttpClient
 import io.ktor.client.call.receive
+import io.ktor.client.features.timeout
 import io.ktor.client.request.get
 import io.ktor.client.statement.HttpStatement
 import io.ktor.utils.io.ByteReadChannel
@@ -45,15 +46,14 @@ class BuildDownloader : KoinComponent {
     private suspend fun downloadIfRequiredAndReturnPath(buildDto: BuildDto): String {
         val downloadData = downloadInfoGenerator[buildDto]
 
-        val directory = "$path${buildDto.productName}"
+        val directory = "$path${buildDto.productName.replace(" ", "_")}"
         val filePath = "$directory/${buildDto.fullNumber}.tar.gz"
 
         if (alreadyExists(filePath, downloadData.checkSum)) return filePath
 
         val file = createFile(directory, filePath)
-        client.get<HttpStatement>(downloadData.downloadLink).execute { httpResponse ->
-            httpResponse.receive<ByteReadChannel>().copyTo(file.outputStream())
-        }
+        client.get<HttpStatement>(downloadData.downloadLink) { timeout { requestTimeoutMillis = 1200_000 } }
+            .execute { httpResponse -> httpResponse.receive<ByteReadChannel>().copyTo(file.outputStream()) }
 
         if (!verifier.isIntegral(file, downloadData.checkSum))
             throw RuntimeException("Downloaded file is not integral")

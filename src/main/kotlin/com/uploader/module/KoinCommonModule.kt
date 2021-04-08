@@ -21,16 +21,24 @@ import com.uploader.refresh.InformationRefresher
 import com.uploader.resource.BuildsStatusInfoProvider
 import com.uploader.resource.ProductBuildsProvider
 import io.ktor.client.HttpClient
+import io.ktor.client.features.HttpTimeout
+import org.joda.time.format.DateTimeFormat
 import org.koin.core.component.KoinApiExtension
 import org.koin.dsl.module
 
 @KoinApiExtension
-class KoinCommonModule {
+object KoinCommonModule {
     fun module(configuration: AppConfig) =
         module {
             single { configuration }
             single { DatabaseProvider() }
-            single<HttpClient> { HttpClient() }
+            single<HttpClient> {
+                HttpClient {
+                    install(HttpTimeout) {
+                        requestTimeoutMillis = 5000
+                    }
+                }
+            }
             single<BuildRepository> { BuildRepositoryImpl() }
             single { BuildInfoProvider() }
             single { BuildUpdatesPersister() }
@@ -45,6 +53,7 @@ class KoinCommonModule {
             single { ProductBuildsProvider() }
             single { InformationRefresher() }
             single { ChecksumVerifier() }
+            single { DateTimeFormat.forPattern("MM/dd/yyyy HH:mm") }
         }
 
     private fun mapper(): XmlMapper {

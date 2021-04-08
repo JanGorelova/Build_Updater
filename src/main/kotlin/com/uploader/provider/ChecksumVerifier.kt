@@ -14,9 +14,20 @@ class ChecksumVerifier : KoinComponent {
     }
 
     private fun hashFile(file: File): String {
-        return MessageDigest
-            .getInstance("SHA-256")
-            .digest(file.inputStream().readBytes())
+        val instance = MessageDigest.getInstance("SHA-256")
+
+        val buffer = ByteArray(1024)
+        val stream = file.inputStream()
+        var sizeRead: Int
+
+        stream.use {
+            while (stream.read(buffer).also { sizeRead = it } != -1) {
+                instance.update(buffer, 0, sizeRead)
+            }
+        }
+
+        return instance
+            .digest()
             .fold("", { str, it -> str + "%02x".format(it) })
     }
 }

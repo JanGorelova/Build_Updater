@@ -1,0 +1,38 @@
+{
+  "211.6693.77": {
+    "name": "PyCharm",
+    "version": "2020.3.5",
+    "buildNumber": "203.7717.81",
+    "productCode": "PY",
+    "dataDirectoryName": "PyCharm2020.3",
+    "svgIconPath": "bin/pycharm.svg",
+    "launch": [
+      {
+        "os": "Linux",
+        "launcherPath": "bin/pycharm.sh",
+        "javaExecutablePath": "jbr/bin/java",
+        "vmOptionsFilePath": "bin/pycharm64.vmoptions",
+        "startupWmClass": "jetbrains-pycharm"
+      }
+    ],
+    "customProperties": []
+  },
+  "211.6693.115": {
+    "name": "PyCharm",
+    "version": "2021.1",
+    "buildNumber": "211.6693.115",
+    "productCode": "PY",
+    "dataDirectoryName": "PyCharm2021.1",
+    "svgIconPath": "bin/pycharm.svg",
+    "launch": [
+      {
+        "os": "Linux",
+        "launcherPath": "bin/pycharm.sh",
+        "javaExecutablePath": "jbr/bin/java",
+        "vmOptionsFilePath": "bin/pycharm64.vmoptions",
+        "startupWmClass": "jetbrains-pycharm"
+      }
+    ],
+    "customProperties": []
+  }
+}

@@ -1,0 +1,23 @@
+[
+  {
+    "productName": "PyCharm",
+    "fullNumber": "211.6693.115",
+    "state": "DOWNLOADED",
+    "dateCreated": "{Created_211.6693.115}",
+    "dateUpdated": "{Updated_211.6693.115}"
+  },
+  {
+    "productName": "PyCharm",
+    "fullNumber": "211.6693.77",
+    "state": "DOWNLOADED",
+    "dateCreated": "{Created_211.6693.77}",
+    "dateUpdated": "{Updated_211.6693.77}"
+  },
+  {
+    "productName": "WebStorm",
+    "fullNumber": "211.6693.108",
+    "state": "DOWNLOADED",
+    "dateCreated": "{Created_211.6693.108}",
+    "dateUpdated": "{Updated_211.6693.108}"
+  }
+]

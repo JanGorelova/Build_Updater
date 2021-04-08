@@ -10,5 +10,5 @@ interface BuildInfoRepository {
 
     fun findAllByProductName(productName: String): Map<String, JsonNode>
 
-    fun findByProductNameAndBuildNumber(productCode: String, fullNumber: String): JsonNode
+    fun findByProductNameAndBuildNumber(productName: String, fullNumber: String): JsonNode
 }

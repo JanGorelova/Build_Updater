@@ -1,9 +1,10 @@
 package com.uploader
 
-import com.uploader.TestingTool.DOWNLOAD_PYCHARM_URL
-import com.uploader.TestingTool.PYCHARM_CHANNEL
-import com.uploader.TestingTool.PYCHARM_FULL_NUMBER
-import com.uploader.TestingTool.PYCHARM_VERSION
+import com.uploader.TestingConstants.AWAIT_AT_MOST_SECONDS
+import com.uploader.TestingConstants.DOWNLOAD_PYCHARM_URL
+import com.uploader.TestingConstants.PYCHARM_CHANNEL
+import com.uploader.TestingConstants.PYCHARM_FULL_NUMBER
+import com.uploader.TestingConstants.PYCHARM_VERSION
 import com.uploader.dao.dto.BuildDto
 import com.uploader.dao.dto.BuildDto.State.CREATED
 import com.uploader.dao.dto.BuildDto.State.DOWNLOADED
@@ -13,7 +14,7 @@ import com.uploader.provider.BuildDownloader
 import com.uploader.provider.Constants.PYCHARM
 import com.uploader.provider.Constants.UPDATES_URL
 import java.util.concurrent.CountDownLatch
-import java.util.concurrent.TimeUnit
+import java.util.concurrent.TimeUnit.SECONDS
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -79,7 +80,7 @@ class BuildUploadRaceConditionSpec : KoinTest {
 
         // then
         await()
-            .atMost(1, TimeUnit.MINUTES)
+            .atMost(AWAIT_AT_MOST_SECONDS, SECONDS)
             .untilAsserted {
                 val updated = runBlocking {
                     databaseProvider.dbQuery { buildRepository.getBy(saved.fullNumber, saved.channelId) }

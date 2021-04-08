@@ -3,7 +3,7 @@ package com.uploader.resource
 import com.fasterxml.jackson.databind.JsonNode
 import com.uploader.dao.repository.BuildInfoRepository
 import com.uploader.db.DatabaseProvider
-import com.uploader.provider.Constants.supportedCodes
+import com.uploader.provider.Constants.getProductNameByProductCode
 import kotlinx.coroutines.runBlocking
 import org.koin.core.component.KoinApiExtension
 import org.koin.core.component.KoinComponent
@@ -17,18 +17,17 @@ class ProductBuildsProvider : KoinComponent {
     fun provideByProduct(productCode: String): Map<String, JsonNode> =
         runBlocking {
             provider.dbQuery {
-                val productName = supportedCodes.entries
-                    .filter { productCode in it.value }
-                    .first()
-                    .key
+                val productName = getProductNameByProductCode(productCode)
                 buildInfoRepository.findAllByProductName(productName)
             }
         }
 
-    fun provideByProductAndBuild(productCode: String, buildNumber: String): JsonNode =
+    fun provideByProductCodeAndBuild(productCode: String, buildNumber: String): JsonNode =
         runBlocking {
+            val productName = getProductNameByProductCode(productCode)
+
             provider.dbQuery {
-                buildInfoRepository.findByProductNameAndBuildNumber(productCode, buildNumber)
+                buildInfoRepository.findByProductNameAndBuildNumber(productName, buildNumber)
             }
         }
 }

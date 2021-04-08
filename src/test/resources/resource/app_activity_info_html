@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+  <body>
+    <h1>Activity information</h1>
+    <table>
+      <thead>
+        <tr>
+          <th>Product name</th>
+          <th>Full number</th>
+          <th>Current state</th>
+          <th>Created date</th>
+          <th>Updated date</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>PyCharm</td>
+          <td>211.6693.115</td>
+          <td>DOWNLOADED</td>
+          <td>{Created_211.6693.115}</td>
+          <td>{Updated_211.6693.115}</td>
+        </tr>
+        <tr>
+          <td>PyCharm</td>
+          <td>211.6693.77</td>
+          <td>DOWNLOADED</td>
+          <td>{Created_211.6693.77}</td>
+          <td>{Updated_211.6693.77}</td>
+        </tr>
+        <tr>
+          <td>WebStorm</td>
+          <td>211.6693.108</td>
+          <td>DOWNLOADED</td>
+          <td>{Created_211.6693.108}</td>
+          <td>{Updated_211.6693.108}</td>
+        </tr>
+      </tbody>
+    </table>
+  </body>
+</html>

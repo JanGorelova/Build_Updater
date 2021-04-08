@@ -8,9 +8,11 @@ import com.uploader.dao.dto.BuildDto.State.FAILED
 import com.uploader.dao.dto.BuildDto.State.PROCESSING
 import com.uploader.dao.entity.Build
 import com.uploader.dao.entity.Build.id
+import com.uploader.dao.entity.Build.path
 import com.uploader.dao.entity.Build.state
 import org.jetbrains.exposed.sql.Op
 import org.jetbrains.exposed.sql.ResultRow
+import org.jetbrains.exposed.sql.SortOrder.ASC
 import org.jetbrains.exposed.sql.SqlExpressionBuilder
 import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.insert
@@ -30,14 +32,13 @@ class BuildRepositoryImpl : BuildRepository {
         }[id].value
 
     override fun gelAllWithStates(states: List<State>) =
-        Build.select {
-            state.inList(states.map { it.name })
-        }.map { it.mapToDto() }
+        Build.select { state.inList(states.map { it.name }) }
+            .orderBy(Build.productName to ASC, Build.fullNumber to ASC)
+            .map { it.mapToDto() }
 
     override fun getBy(fullNumber: String, channelId: String): BuildDto? =
-        Build.select {
-            Build.fullNumber.eq(fullNumber).and { Build.channelId.eq(channelId) }
-        }
+        Build
+            .select { Build.fullNumber.eq(fullNumber).and { Build.channelId.eq(channelId) } }
             .mapNotNull { it.mapToDto() }
             .singleOrNull()
 
@@ -96,6 +97,6 @@ class BuildRepositoryImpl : BuildRepository {
             dateCreated = this[Build.dateCreated].toLocalDateTime(),
             dateUpdated = this[Build.dateUpdated].toLocalDateTime(),
             productName = this[Build.productName],
-            path = this[Build.path]
+            path = this[path]
         )
 }

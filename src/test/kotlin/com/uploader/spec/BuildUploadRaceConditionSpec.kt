@@ -1,5 +1,7 @@
-package com.uploader
+package com.uploader.spec
 
+import com.uploader.MockedHttp
+import com.uploader.TestApp
 import com.uploader.TestingConstants.AWAIT_AT_MOST_SECONDS
 import com.uploader.TestingConstants.DOWNLOAD_PYCHARM_URL
 import com.uploader.TestingConstants.PYCHARM_CHANNEL
@@ -8,6 +10,7 @@ import com.uploader.TestingConstants.PYCHARM_VERSION
 import com.uploader.dao.dto.BuildDto
 import com.uploader.dao.dto.BuildDto.State.CREATED
 import com.uploader.dao.dto.BuildDto.State.DOWNLOADED
+import com.uploader.dao.repository.BuildInfoRepository
 import com.uploader.dao.repository.BuildRepository
 import com.uploader.db.DatabaseProvider
 import com.uploader.provider.BuildDownloader
@@ -21,6 +24,7 @@ import kotlinx.coroutines.runBlocking
 import mu.KLogging
 import org.awaitility.Awaitility.await
 import org.hamcrest.CoreMatchers.equalTo
+import org.hamcrest.CoreMatchers.notNullValue
 import org.hamcrest.CoreMatchers.nullValue
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.jupiter.api.AfterEach
@@ -35,15 +39,16 @@ import org.koin.test.KoinTest
 @KoinApiExtension
 class BuildUploadRaceConditionSpec : KoinTest {
     private val buildRepository by inject<BuildRepository>()
+    private val buildInfoRepository by inject<BuildInfoRepository>()
     private val buildDownloader by inject<BuildDownloader>()
     private val databaseProvider by inject<DatabaseProvider>()
 
     private lateinit var app: TestApp
-
-    private val mockedHttp = MockedHttp()
+    private lateinit var mockedHttp: MockedHttp
 
     @BeforeEach
     fun setup() {
+        mockedHttp = MockedHttp()
         app = TestApp("testWithoutRefreshJob")
         loadKoinModules(module { single(override = true) { mockedHttp.client } })
     }
@@ -87,15 +92,23 @@ class BuildUploadRaceConditionSpec : KoinTest {
                 }
 
                 assertThat(updated?.state, equalTo(DOWNLOADED))
-            }
 
-        assertThat(mockedHttp.numberOfInvocations(DOWNLOAD_PYCHARM_URL), equalTo(1))
-        assertThat(mockedHttp.numberOfInvocations(UPDATES_URL), nullValue())
+                val info = runBlocking {
+                    databaseProvider.dbQuery {
+                        buildInfoRepository.findByBuildId(saved.id ?: error(""))
+                    }
+                }
+
+                assertThat(info, notNullValue())
+                assertThat(mockedHttp.numberOfInvocations(DOWNLOAD_PYCHARM_URL), equalTo(1))
+                assertThat(mockedHttp.numberOfInvocations(UPDATES_URL), nullValue())
+            }
     }
 
     @AfterEach
     fun close() {
         app.close()
+        mockedHttp.client.close()
     }
 
     private companion object : KLogging()

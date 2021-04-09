@@ -7,6 +7,7 @@ import io.ktor.client.HttpClient
 import io.ktor.client.request.get
 import java.time.LocalDate
 import kotlinx.coroutines.runBlocking
+import mu.KLogging
 import org.koin.core.component.KoinApiExtension
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
@@ -47,4 +48,6 @@ class BuildInfoProvider : KoinComponent {
         val version: String,
         val releaseDate: LocalDate?
     )
+
+    private companion object : KLogging()
 }

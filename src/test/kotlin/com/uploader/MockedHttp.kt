@@ -16,39 +16,47 @@ import io.ktor.client.features.HttpTimeout
 import io.ktor.utils.io.ByteReadChannel
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.atomic.AtomicInteger
+import mu.KLogging
 import org.koin.core.component.KoinApiExtension
 
 @KoinApiExtension
 class MockedHttp {
     private val invocations = ConcurrentHashMap<String, AtomicInteger>()
+    val client: HttpClient
 
-    val client = HttpClient(MockEngine) {
-        install(HttpTimeout) {
-            requestTimeoutMillis = 5000
-        }
-        engine {
-            addHandler { request ->
-                when (request.url.toString()) {
-                    UPDATES_URL -> {
-                        putIfAbsentOrIncrement(UPDATES_URL)
-                        respond(updates)
+    init {
+        client = HttpClient(MockEngine) {
+            install(HttpTimeout) {
+                requestTimeoutMillis = 10000
+            }
+            engine {
+                addHandler { request ->
+                    when (request.url.toString()) {
+                        UPDATES_URL -> {
+                            respond(updates).also {
+                                putIfAbsentOrIncrement(UPDATES_URL)
+                            }
+                        }
+                        DOWNLOAD_PYCHARM_URL -> {
+                            respond(ByteReadChannel(pyCharmBuild)).also {
+                                putIfAbsentOrIncrement(DOWNLOAD_PYCHARM_URL)
+                            }
+                        }
+                        DOWNLOAD_PYCHARM_2_URL -> {
+                            respond(ByteReadChannel(pyCharm2Build)).also {
+                                putIfAbsentOrIncrement(DOWNLOAD_PYCHARM_2_URL)
+                            }
+                        }
+                        DOWNLOAD_WEBSTORM_URL -> {
+                            respond(ByteReadChannel(webStormBuild)).also {
+                                putIfAbsentOrIncrement(DOWNLOAD_WEBSTORM_URL)
+                            }
+                        }
+                        SHA_CHECK_PYCHARM_URL -> respond(sha256(pyCharmBuild))
+                        SHA_CHECK_PYCHARM_2_URL -> respond(sha256(pyCharm2Build))
+                        SHA_CHECK_WEBSTORM_URL -> respond(sha256(webStormBuild))
+                        else -> error("Unhandled ${request.url}")
                     }
-                    DOWNLOAD_PYCHARM_URL -> {
-                        putIfAbsentOrIncrement(DOWNLOAD_PYCHARM_URL)
-                        respond(ByteReadChannel(pyCharmBuild))
-                    }
-                    DOWNLOAD_PYCHARM_2_URL -> {
-                        putIfAbsentOrIncrement(DOWNLOAD_PYCHARM_2_URL)
-                        respond(ByteReadChannel(pyCharm2Build))
-                    }
-                    DOWNLOAD_WEBSTORM_URL -> {
-                        putIfAbsentOrIncrement(DOWNLOAD_WEBSTORM_URL)
-                        respond(ByteReadChannel(webStormBuild))
-                    }
-                    SHA_CHECK_PYCHARM_URL -> respond(sha256(pyCharmBuild))
-                    SHA_CHECK_PYCHARM_2_URL -> respond(sha256(pyCharm2Build))
-                    SHA_CHECK_WEBSTORM_URL -> respond(sha256(webStormBuild))
-                    else -> error("Unhandled ${request.url}")
                 }
             }
         }
@@ -66,4 +74,6 @@ class MockedHttp {
     private val pyCharm2Build = downloadFromResource("app/tars/pycharm-2.tar.gz")
     private val webStormBuild = downloadFromResource("app/tars/webstorm.tar.gz")
     private val updates = downloadFromResource("updates/test_with_two_products.xml")
+
+    private companion object : KLogging()
 }

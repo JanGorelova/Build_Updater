@@ -21,10 +21,6 @@ class DownloadBuildsTask : TimerTask(), KoinComponent {
 
     override fun run() {
         runBlocking { provider.dbQuery { buildRepository.gelAllWithStates(listOf(CREATED, FAILED)) } }
-//            .filter {
-//                val v = it.version
-//                v in listOf("2020.1.4", "2020.3.3 RC2")
-//            }
             .forEach { buildDto ->
                 GlobalScope.launch { buildDownloader.download(buildDto) }
             }

@@ -1,9 +1,11 @@
-package com.uploader
+package com.uploader.spec
 
 import com.uploader.DatabaseTool.compareBuildInfos
 import com.uploader.DatabaseTool.compareBuilds
 import com.uploader.DatabaseTool.getAllBuildInfos
 import com.uploader.DatabaseTool.getAllBuilds
+import com.uploader.MockedHttp
+import com.uploader.TestApp
 import com.uploader.TestingConstants.AWAIT_AT_MOST_SECONDS
 import com.uploader.TestingConstants.DOWNLOAD_PYCHARM_2_URL
 import com.uploader.TestingConstants.DOWNLOAD_PYCHARM_URL
@@ -24,12 +26,13 @@ import org.koin.test.KoinTest
 @KoinApiExtension
 class MainFlowSpec : KoinTest {
     private lateinit var app: TestApp
-
-    private val mockedHttp = MockedHttp()
+    private lateinit var mockedHttp: MockedHttp
 
     @BeforeEach
     fun setup() {
         app = TestApp("test")
+        mockedHttp = MockedHttp()
+
         loadKoinModules(module { single(override = true) { mockedHttp.client } })
     }
 
@@ -57,5 +60,6 @@ class MainFlowSpec : KoinTest {
     @AfterEach
     fun close() {
         app.close()
+        mockedHttp.client.close()
     }
 }

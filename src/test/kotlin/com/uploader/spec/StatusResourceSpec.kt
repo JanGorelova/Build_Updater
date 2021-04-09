@@ -1,8 +1,11 @@
-package com.uploader
+package com.uploader.spec
 
 import com.uploader.DatabaseTool.doInitialSetup
-import com.uploader.TestingConstants.APP_URL
+import com.uploader.MockedHttp
+import com.uploader.TestApp
+import com.uploader.TestingConstants.appUrl
 import com.uploader.TestingTool.downloadFromResource
+import com.uploader.config.AppConfig
 import com.uploader.dao.dto.BuildDto
 import io.ktor.client.HttpClient
 import io.ktor.client.request.get
@@ -30,12 +33,14 @@ class StatusResourceSpec : KoinTest {
     private val mockedHttp = MockedHttp()
     private val client = HttpClient()
 
+    private lateinit var config: AppConfig
     private lateinit var app: TestApp
     private lateinit var builds: List<BuildDto>
 
     @BeforeEach
     fun setup() {
         app = TestApp("test")
+        config = app.config
         loadKoinModules(module { single(override = true) { mockedHttp.client } })
 
         builds = doInitialSetup()
@@ -44,7 +49,7 @@ class StatusResourceSpec : KoinTest {
     @Test
     fun `should return html with app activity info`() {
         // when
-        val response = runBlocking { client.get<HttpResponse>("$APP_URL/") }
+        val response = runBlocking { client.get<HttpResponse>("${config.appUrl()}/") }
         val actual = runBlocking { response.content.toByteArray().decodeToString() }
 
         // then
@@ -57,7 +62,7 @@ class StatusResourceSpec : KoinTest {
     @Test
     fun `should return json with app activity info`() {
         // when
-        val response = runBlocking { client.get<HttpResponse>("$APP_URL/status") }
+        val response = runBlocking { client.get<HttpResponse>("${config.appUrl()}/status") }
         val data = runBlocking { response.content.toByteArray().decodeToString() }
 
         // then
@@ -82,5 +87,6 @@ class StatusResourceSpec : KoinTest {
     @AfterEach
     fun close() {
         app.close()
+        mockedHttp.client.close()
     }
 }

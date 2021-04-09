@@ -12,9 +12,13 @@ class Job(
     delay: Duration = ZERO,
     period: Duration = ofMinutes(1)
 ) {
-    init {
-        val timer = Timer(name)
+    private val timer: Timer = Timer(name)
 
+    init {
         timer.scheduleAtFixedRate(task, delay.toMillis(), period.toMillis())
+    }
+
+    fun cancel() {
+        timer.cancel()
     }
 }

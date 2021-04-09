@@ -1,17 +1,12 @@
 package com.uploader
 
 import com.uploader.config.AppConfig
-import org.koin.core.component.KoinApiExtension
-import org.koin.core.component.KoinComponent
-import org.koin.core.component.inject
+import java.nio.file.Paths
 
-@KoinApiExtension
-object TestingConstants : KoinComponent {
-    private val config by inject<AppConfig>()
-
+object TestingConstants {
     private const val ROOT_DOWNLOAD_URL = "https://download.jetbrains.com"
+    private val rootBuildsPath = "${Paths.get("").toRealPath()}/src/test/resources/downloads/"
 
-    const val APP_URL = "http://localhost:8080/"
     const val AWAIT_AT_MOST_SECONDS = 100L
 
     const val PYCHARM_FULL_NUMBER = "211.6693.115"
@@ -38,9 +33,15 @@ object TestingConstants : KoinComponent {
     const val PYCHARM_2_EXPECTED_INFO_JSON = "app/tars/infos/pycharm-2-product-info.json"
     const val WEBSTORM_EXPECTED_INFO_JSON = "app/tars/infos/webstorm-product-info.json"
 
-    fun pycharmPath() = "${config.rootBuildsPath}PyCharm/$PYCHARM_FULL_NUMBER.tar.gz"
+    fun pycharmPath() =
+        "${rootBuildsPath}PyCharm/$PYCHARM_FULL_NUMBER.tar.gz"
 
-    fun pycharm2Path() = "${config.rootBuildsPath}PyCharm/$PYCHARM_2_FULL_NUMBER.tar.gz"
+    fun pycharm2Path() =
+        "${rootBuildsPath}PyCharm/$PYCHARM_2_FULL_NUMBER.tar.gz"
 
-    fun webstormPath() = "${config.rootBuildsPath}WebStorm/$WEBSTORM_FULL_NUMBER.tar.gz"
+    fun webstormPath() =
+        "${rootBuildsPath}WebStorm/$WEBSTORM_FULL_NUMBER.tar.gz"
+
+    fun AppConfig.appUrl() =
+        "http://$host:$port/"
 }

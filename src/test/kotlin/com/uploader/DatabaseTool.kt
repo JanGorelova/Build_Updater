@@ -26,7 +26,7 @@ import com.uploader.dao.repository.BuildRepository
 import com.uploader.db.DatabaseProvider
 import com.uploader.provider.Constants.PYCHARM
 import com.uploader.provider.Constants.WEBSTORM
-import java.util.concurrent.TimeUnit
+import java.util.concurrent.TimeUnit.SECONDS
 import kotlinx.coroutines.runBlocking
 import net.javacrumbs.jsonunit.JsonAssert.assertJsonEquals
 import org.awaitility.Awaitility.await
@@ -39,37 +39,38 @@ import org.koin.core.component.inject
 
 @KoinApiExtension
 object DatabaseTool : KoinComponent {
-    private val databaseProvider by inject<DatabaseProvider>()
+    private val provider by inject<DatabaseProvider>()
     private val buildRepository by inject<BuildRepository>()
     private val buildInfoRepository by inject<BuildInfoRepository>()
-    private val jsonMapper by inject<ObjectMapper>()
 
-    fun getAllBuilds() = runBlocking { databaseProvider.dbQuery { Build.selectAll().toList() } }
+    private val jsonMapper = ObjectMapper()
 
-    fun getAllBuildInfos() = runBlocking { databaseProvider.dbQuery { BuildInfo.selectAll().toList() } }
+    fun getAllBuilds() = runBlocking { provider.dbQuery { Build.selectAll().toList() } }
+
+    fun getAllBuildInfos() = runBlocking { provider.dbQuery { BuildInfo.selectAll().toList() } }
 
     fun doInitialSetup(): List<BuildDto> {
         await()
-            .atMost(AWAIT_AT_MOST_SECONDS, TimeUnit.SECONDS)
+            .atMost(AWAIT_AT_MOST_SECONDS, SECONDS)
             .untilAsserted {
                 val buildInfos = getAllBuildInfos()
                 assertThat(buildInfos, Matchers.hasSize(3))
             }
 
         val pyCharmBuild = runBlocking {
-            databaseProvider.dbQuery {
+            provider.dbQuery {
                 buildRepository.getBy(PYCHARM_FULL_NUMBER, PYCHARM_CHANNEL)
             }
         } ?: error("Build with $PYCHARM_FULL_NUMBER and $PYCHARM_CHANNEL was not found")
 
         val pyCharmBuild2 = runBlocking {
-            databaseProvider.dbQuery {
+            provider.dbQuery {
                 buildRepository.getBy(PYCHARM_2_FULL_NUMBER, PYCHARM_2_CHANNEL)
             }
         } ?: error("Build with $PYCHARM_2_FULL_NUMBER and $PYCHARM_2_CHANNEL was not found")
 
         val webstormBuild = runBlocking {
-            databaseProvider.dbQuery {
+            provider.dbQuery {
                 buildRepository.getBy(WEBSTORM_FULL_NUMBER, WEBSTORM_CHANNEL)
             }
         } ?: error("Build with $WEBSTORM_FULL_NUMBER and $WEBSTORM_CHANNEL was not found")
@@ -79,11 +80,11 @@ object DatabaseTool : KoinComponent {
 
     fun compareBuilds() {
         val pyCharmBuild = runBlocking {
-            databaseProvider.dbQuery { buildRepository.getBy(PYCHARM_FULL_NUMBER, PYCHARM_CHANNEL) }
+            provider.dbQuery { buildRepository.getBy(PYCHARM_FULL_NUMBER, PYCHARM_CHANNEL) }
         }
 
         val pyCharmBuild2 = runBlocking {
-            databaseProvider.dbQuery {
+            provider.dbQuery {
                 buildRepository.getBy(
                     PYCHARM_2_FULL_NUMBER,
                     PYCHARM_2_CHANNEL
@@ -116,7 +117,7 @@ object DatabaseTool : KoinComponent {
         )
 
         val webStormBuild = runBlocking {
-            databaseProvider.dbQuery { buildRepository.getBy(WEBSTORM_FULL_NUMBER, WEBSTORM_CHANNEL) }
+            provider.dbQuery { buildRepository.getBy(WEBSTORM_FULL_NUMBER, WEBSTORM_CHANNEL) }
         }
 
         val expectedWebstormBuild = BuildDto(
@@ -140,7 +141,7 @@ object DatabaseTool : KoinComponent {
         comparePyCharmBuildInfos()
 
         val actualWebStormBuildInfo = runBlocking {
-            databaseProvider.dbQuery { buildInfoRepository.findAllByProductName(WEBSTORM).toList().first() }
+            provider.dbQuery { buildInfoRepository.findAllByProductName(WEBSTORM).toList().first() }
         }
         assertJsonEquals(
             actualWebStormBuildInfo.second,
@@ -150,7 +151,7 @@ object DatabaseTool : KoinComponent {
 
     fun comparePyCharmBuildInfos() {
         val actualPyCharmBuildInfos = runBlocking {
-            databaseProvider.dbQuery { buildInfoRepository.findAllByProductName(PYCHARM).toList() }
+            provider.dbQuery { buildInfoRepository.findAllByProductName(PYCHARM).toList() }
         }
 
         actualPyCharmBuildInfos.forEach { (fullNumber, info) ->

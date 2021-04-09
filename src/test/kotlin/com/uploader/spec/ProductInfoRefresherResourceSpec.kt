@@ -1,16 +1,18 @@
-package com.uploader
+package com.uploader.spec
 
 import com.uploader.DatabaseTool.compareBuildInfos
 import com.uploader.DatabaseTool.compareBuilds
 import com.uploader.DatabaseTool.comparePyCharmBuildInfos
 import com.uploader.DatabaseTool.getAllBuildInfos
 import com.uploader.DatabaseTool.getAllBuilds
-import com.uploader.TestingConstants.APP_URL
+import com.uploader.MockedHttp
+import com.uploader.TestApp
 import com.uploader.TestingConstants.AWAIT_AT_MOST_SECONDS
 import com.uploader.TestingConstants.DOWNLOAD_PYCHARM_2_URL
 import com.uploader.TestingConstants.DOWNLOAD_PYCHARM_URL
 import com.uploader.TestingConstants.DOWNLOAD_WEBSTORM_URL
-import com.uploader.provider.Constants.UPDATES_URL
+import com.uploader.TestingConstants.appUrl
+import com.uploader.config.AppConfig
 import io.ktor.client.HttpClient
 import io.ktor.client.request.patch
 import io.ktor.client.statement.HttpResponse
@@ -33,21 +35,27 @@ import org.koin.test.KoinTest
 @KoinApiExtension
 class ProductInfoRefresherResourceSpec : KoinTest {
     private lateinit var app: TestApp
+    private lateinit var mockedHttp: MockedHttp
+    private lateinit var config: AppConfig
 
-    private val mockedHttp = MockedHttp()
-    private val client = HttpClient()
+    private lateinit var client: HttpClient
 
     @BeforeEach
     fun setup() {
         app = TestApp("testWithoutRefreshJob")
+        mockedHttp = MockedHttp()
+        config = app.config
+        client = HttpClient()
+
         loadKoinModules(module { single(override = true) { mockedHttp.client } })
     }
 
     @Test
     fun `should init refresh process`() {
         // when
-        val response = runBlocking { client.patch<HttpResponse>("$APP_URL/refresh") }
+        val response = runBlocking { client.patch<HttpResponse>("${config.appUrl()}/refresh") }
 
+        // then
         assertThat(response.status, equalTo(OK))
         await()
             .atMost(AWAIT_AT_MOST_SECONDS, SECONDS)
@@ -62,8 +70,6 @@ class ProductInfoRefresherResourceSpec : KoinTest {
                 compareBuildInfos()
             }
 
-        // then
-        assertThat(mockedHttp.numberOfInvocations(UPDATES_URL), equalTo(1))
         assertThat(mockedHttp.numberOfInvocations(DOWNLOAD_PYCHARM_URL), equalTo(1))
         assertThat(mockedHttp.numberOfInvocations(DOWNLOAD_PYCHARM_2_URL), equalTo(1))
         assertThat(mockedHttp.numberOfInvocations(DOWNLOAD_WEBSTORM_URL), equalTo(1))
@@ -72,7 +78,7 @@ class ProductInfoRefresherResourceSpec : KoinTest {
     @Test
     fun `should init refresh process for specified product code`() {
         // when
-        val response = runBlocking { client.patch<HttpResponse>("$APP_URL/refresh/PYA") }
+        val response = runBlocking { client.patch<HttpResponse>("${config.appUrl()}/refresh/PYA") }
 
         assertThat(response.status, equalTo(OK))
         await()
@@ -88,7 +94,6 @@ class ProductInfoRefresherResourceSpec : KoinTest {
         // then
         comparePyCharmBuildInfos()
 
-        assertThat(mockedHttp.numberOfInvocations(UPDATES_URL), equalTo(1))
         assertThat(mockedHttp.numberOfInvocations(DOWNLOAD_PYCHARM_URL), equalTo(1))
         assertThat(mockedHttp.numberOfInvocations(DOWNLOAD_PYCHARM_2_URL), equalTo(1))
         assertThat(mockedHttp.numberOfInvocations(DOWNLOAD_WEBSTORM_URL), nullValue())
@@ -97,5 +102,7 @@ class ProductInfoRefresherResourceSpec : KoinTest {
     @AfterEach
     fun close() {
         app.close()
+        client.close()
+        mockedHttp.client.close()
     }
 }

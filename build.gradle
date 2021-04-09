@@ -6,6 +6,11 @@ plugins {
     id "org.jmailen.kotlinter" version "3.4.0"
 }
 
+wrapper {
+    gradleVersion = '6.7'
+    distributionUrl = distributionUrl.replace("bin", "all")
+}
+
 test {
     useJUnitPlatform()
 }
@@ -75,3 +80,4 @@ dependencies {
     testImplementation "org.hamcrest:hamcrest:2.1"
     testImplementation "net.javacrumbs.json-unit:json-unit:2.3.0"
 }
+

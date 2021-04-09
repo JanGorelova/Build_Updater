@@ -10,6 +10,7 @@ import com.uploader.dao.repository.BuildInfoRepositoryImpl
 import com.uploader.dao.repository.BuildRepository
 import com.uploader.dao.repository.BuildRepositoryImpl
 import com.uploader.db.DatabaseProvider
+import com.uploader.module.HicariProvider.hikari
 import com.uploader.provider.BuildDownloader
 import com.uploader.provider.BuildInfoPersister
 import com.uploader.provider.BuildInfoProvider
@@ -54,6 +55,7 @@ object KoinCommonModule {
             single { InformationRefresher() }
             single { ChecksumVerifier() }
             single { DateTimeFormat.forPattern("MM/dd/yyyy HH:mm") }
+            single { hikari(configuration) }
         }
 
     private fun mapper(): XmlMapper {

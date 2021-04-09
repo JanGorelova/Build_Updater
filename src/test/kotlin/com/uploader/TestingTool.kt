@@ -1,11 +1,8 @@
 package com.uploader
 
 import java.security.MessageDigest
-import org.koin.core.component.KoinApiExtension
-import org.koin.core.component.KoinComponent
 
-@KoinApiExtension
-object TestingTool : KoinComponent {
+object TestingTool {
     fun downloadFromResource(path: String): ByteArray =
         this::class.java
             .classLoader.getResourceAsStream(path)

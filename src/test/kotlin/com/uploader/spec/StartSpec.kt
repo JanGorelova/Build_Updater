@@ -1,5 +1,6 @@
-package com.uploader
+package com.uploader.spec
 
+import com.uploader.TestApp
 import com.uploader.db.DatabaseProvider
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking

@@ -30,7 +30,6 @@ import org.koin.test.KoinTest
 class StatusResourceSpec : KoinTest {
     private val formatter by inject<DateTimeFormatter>()
 
-    private val mockedHttp = MockedHttp()
     private val client = HttpClient()
 
     private lateinit var config: AppConfig
@@ -41,7 +40,7 @@ class StatusResourceSpec : KoinTest {
     fun setup() {
         app = TestApp("test")
         config = app.config
-        loadKoinModules(module { single(override = true) { mockedHttp.client } })
+        loadKoinModules(module { single(override = true) { MockedHttp.client } })
 
         builds = doInitialSetup()
     }
@@ -87,6 +86,6 @@ class StatusResourceSpec : KoinTest {
     @AfterEach
     fun close() {
         app.close()
-        mockedHttp.client.close()
+        MockedHttp.reset()
     }
 }

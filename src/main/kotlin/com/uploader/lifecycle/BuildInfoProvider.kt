@@ -1,8 +1,8 @@
-package com.uploader.provider
+package com.uploader.lifecycle
 
 import com.fasterxml.jackson.dataformat.xml.XmlMapper
-import com.uploader.provider.Constants.UPDATES_URL
-import com.uploader.provider.xml.Products
+import com.uploader.lifecycle.Constants.UPDATES_URL
+import com.uploader.lifecycle.xml.Products
 import io.ktor.client.HttpClient
 import io.ktor.client.request.get
 import java.time.LocalDate

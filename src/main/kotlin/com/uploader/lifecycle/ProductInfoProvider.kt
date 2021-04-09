@@ -1,4 +1,4 @@
-package com.uploader.provider
+package com.uploader.lifecycle
 
 import java.io.File
 import org.apache.commons.compress.archivers.tar.TarArchiveInputStream

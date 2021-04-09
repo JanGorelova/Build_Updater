@@ -8,7 +8,7 @@ import com.uploader.TestingConstants.SHA_CHECK_PYCHARM_URL
 import com.uploader.TestingConstants.SHA_CHECK_WEBSTORM_URL
 import com.uploader.TestingTool.downloadFromResource
 import com.uploader.TestingTool.sha256
-import com.uploader.provider.Constants.UPDATES_URL
+import com.uploader.lifecycle.Constants.UPDATES_URL
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.mock.MockEngine
 import io.ktor.client.engine.mock.respond
@@ -16,11 +16,10 @@ import io.ktor.client.features.HttpTimeout
 import io.ktor.utils.io.ByteReadChannel
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.atomic.AtomicInteger
-import mu.KLogging
 import org.koin.core.component.KoinApiExtension
 
 @KoinApiExtension
-class MockedHttp {
+object MockedHttp {
     private val invocations = ConcurrentHashMap<String, AtomicInteger>()
     val client: HttpClient
 
@@ -75,5 +74,7 @@ class MockedHttp {
     private val webStormBuild = downloadFromResource("app/tars/webstorm.tar.gz")
     private val updates = downloadFromResource("updates/test_with_two_products.xml")
 
-    private companion object : KLogging()
+    fun reset() {
+        invocations.clear()
+    }
 }

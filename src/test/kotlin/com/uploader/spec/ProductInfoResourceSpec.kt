@@ -26,7 +26,6 @@ import org.koin.test.KoinTest
 
 @KoinApiExtension
 class ProductInfoResourceSpec : KoinTest {
-    private val mockedHttp = MockedHttp()
     private val client = HttpClient()
     private lateinit var config: AppConfig
 
@@ -36,7 +35,7 @@ class ProductInfoResourceSpec : KoinTest {
     fun setup() {
         app = TestApp("test")
         config = app.config
-        loadKoinModules(module { single(override = true) { mockedHttp.client } })
+        loadKoinModules(module { single(override = true) { MockedHttp.client } })
 
         doInitialSetup()
     }
@@ -70,6 +69,6 @@ class ProductInfoResourceSpec : KoinTest {
     @AfterEach
     fun close() {
         app.close()
-        mockedHttp.client.close()
+        MockedHttp.reset()
     }
 }

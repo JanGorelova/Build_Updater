@@ -1,6 +1,8 @@
 package com.uploader.spec
 
 import com.uploader.MockedHttp
+import com.uploader.MockedHttp.client
+import com.uploader.MockedHttp.numberOfInvocations
 import com.uploader.TestApp
 import com.uploader.TestingConstants.AWAIT_AT_MOST_SECONDS
 import com.uploader.TestingConstants.DOWNLOAD_PYCHARM_URL
@@ -13,9 +15,9 @@ import com.uploader.dao.dto.BuildDto.State.DOWNLOADED
 import com.uploader.dao.repository.BuildInfoRepository
 import com.uploader.dao.repository.BuildRepository
 import com.uploader.db.DatabaseProvider
-import com.uploader.provider.BuildDownloader
-import com.uploader.provider.Constants.PYCHARM
-import com.uploader.provider.Constants.UPDATES_URL
+import com.uploader.lifecycle.BuildDownloader
+import com.uploader.lifecycle.Constants.PYCHARM
+import com.uploader.lifecycle.Constants.UPDATES_URL
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit.SECONDS
 import kotlinx.coroutines.GlobalScope
@@ -44,13 +46,11 @@ class BuildUploadRaceConditionSpec : KoinTest {
     private val databaseProvider by inject<DatabaseProvider>()
 
     private lateinit var app: TestApp
-    private lateinit var mockedHttp: MockedHttp
 
     @BeforeEach
     fun setup() {
-        mockedHttp = MockedHttp()
         app = TestApp("testWithoutRefreshJob")
-        loadKoinModules(module { single(override = true) { mockedHttp.client } })
+        loadKoinModules(module { single(override = true) { client } })
     }
 
     @Test
@@ -66,7 +66,7 @@ class BuildUploadRaceConditionSpec : KoinTest {
 
         runBlocking { databaseProvider.dbQuery { buildRepository.insert(toSave) } }
         val saved = runBlocking {
-            databaseProvider.dbQuery { buildRepository.getBy(toSave.fullNumber, toSave.channelId) }
+            databaseProvider.dbQuery { buildRepository.getByFullNumberAndChannel(toSave.fullNumber, toSave.channelId) }
         } ?: error("Build $toSave was not saved")
 
         // when
@@ -88,7 +88,12 @@ class BuildUploadRaceConditionSpec : KoinTest {
             .atMost(AWAIT_AT_MOST_SECONDS, SECONDS)
             .untilAsserted {
                 val updated = runBlocking {
-                    databaseProvider.dbQuery { buildRepository.getBy(saved.fullNumber, saved.channelId) }
+                    databaseProvider.dbQuery {
+                        buildRepository.getByFullNumberAndChannel(
+                            saved.fullNumber,
+                            saved.channelId
+                        )
+                    }
                 }
 
                 assertThat(updated?.state, equalTo(DOWNLOADED))
@@ -100,15 +105,15 @@ class BuildUploadRaceConditionSpec : KoinTest {
                 }
 
                 assertThat(info, notNullValue())
-                assertThat(mockedHttp.numberOfInvocations(DOWNLOAD_PYCHARM_URL), equalTo(1))
-                assertThat(mockedHttp.numberOfInvocations(UPDATES_URL), nullValue())
+                assertThat(numberOfInvocations(DOWNLOAD_PYCHARM_URL), equalTo(1))
+                assertThat(numberOfInvocations(UPDATES_URL), nullValue())
             }
     }
 
     @AfterEach
     fun close() {
         app.close()
-        mockedHttp.client.close()
+        MockedHttp.reset()
     }
 
     private companion object : KLogging()

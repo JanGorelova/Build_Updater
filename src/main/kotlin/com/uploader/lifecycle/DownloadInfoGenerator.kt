@@ -1,7 +1,7 @@
-package com.uploader.provider
+package com.uploader.lifecycle
 
 import com.uploader.dao.dto.BuildDto
-import com.uploader.provider.Constants.productNameToUrl
+import com.uploader.lifecycle.Constants.productNameToUrl
 import io.ktor.client.HttpClient
 import io.ktor.client.request.get
 import kotlinx.coroutines.runBlocking
@@ -15,7 +15,8 @@ class DownloadInfoGenerator : KoinComponent {
 
     operator fun get(buildDto: BuildDto): DownloadInfo {
         val productName = buildDto.productName
-        val productUrl = productNameToUrl[productName] ?: error("Unknown product name")
+        val productUrl = productNameToUrl[productName]?.replace("{version}", buildDto.version)
+            ?: error("Unknown product name")
 
         val buildNumber = when (buildDto.version.contains(" ")) {
             true -> buildDto.fullNumber

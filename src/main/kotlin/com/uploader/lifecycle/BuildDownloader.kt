@@ -1,4 +1,4 @@
-package com.uploader.provider
+package com.uploader.lifecycle
 
 import com.uploader.config.AppConfig
 import com.uploader.dao.dto.BuildDto
@@ -13,6 +13,7 @@ import io.ktor.client.statement.HttpStatement
 import io.ktor.utils.io.ByteReadChannel
 import io.ktor.utils.io.jvm.javaio.copyTo
 import java.io.File
+import mu.KLogging
 import org.koin.core.component.KoinApiExtension
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
@@ -38,8 +39,8 @@ class BuildDownloader : KoinComponent {
             val filePath = downloadIfRequiredAndReturnPath(buildDto)
             provider.dbQuery { buildRepository.downloaded(buildId, previousState, filePath) }
         } catch (e: Exception) {
+            logger.error { "Couldn't update: $e" }
             provider.dbQuery { buildRepository.failed(buildId, previousState) }
-            throw e
         }
     }
 
@@ -81,4 +82,6 @@ class BuildDownloader : KoinComponent {
 
         return file.also { it.createNewFile() }
     }
+
+    private companion object : KLogging()
 }

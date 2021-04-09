@@ -5,6 +5,7 @@ import com.uploader.DatabaseTool.compareBuilds
 import com.uploader.DatabaseTool.getAllBuildInfos
 import com.uploader.DatabaseTool.getAllBuilds
 import com.uploader.MockedHttp
+import com.uploader.MockedHttp.numberOfInvocations
 import com.uploader.TestApp
 import com.uploader.TestingConstants.AWAIT_AT_MOST_SECONDS
 import com.uploader.TestingConstants.DOWNLOAD_PYCHARM_2_URL
@@ -26,14 +27,12 @@ import org.koin.test.KoinTest
 @KoinApiExtension
 class MainFlowSpec : KoinTest {
     private lateinit var app: TestApp
-    private lateinit var mockedHttp: MockedHttp
 
     @BeforeEach
     fun setup() {
         app = TestApp("test")
-        mockedHttp = MockedHttp()
 
-        loadKoinModules(module { single(override = true) { mockedHttp.client } })
+        loadKoinModules(module { single(override = true) { MockedHttp.client } })
     }
 
     @Test
@@ -51,15 +50,15 @@ class MainFlowSpec : KoinTest {
                 compareBuilds()
                 compareBuildInfos()
 
-                assertThat(mockedHttp.numberOfInvocations(DOWNLOAD_PYCHARM_URL), equalTo(1))
-                assertThat(mockedHttp.numberOfInvocations(DOWNLOAD_PYCHARM_2_URL), equalTo(1))
-                assertThat(mockedHttp.numberOfInvocations(DOWNLOAD_WEBSTORM_URL), equalTo(1))
+                assertThat(numberOfInvocations(DOWNLOAD_PYCHARM_URL), equalTo(1))
+                assertThat(numberOfInvocations(DOWNLOAD_PYCHARM_2_URL), equalTo(1))
+                assertThat(numberOfInvocations(DOWNLOAD_WEBSTORM_URL), equalTo(1))
             }
     }
 
     @AfterEach
     fun close() {
         app.close()
-        mockedHttp.client.close()
+        MockedHttp.reset()
     }
 }

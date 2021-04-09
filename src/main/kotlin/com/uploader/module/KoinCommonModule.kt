@@ -10,14 +10,14 @@ import com.uploader.dao.repository.BuildInfoRepositoryImpl
 import com.uploader.dao.repository.BuildRepository
 import com.uploader.dao.repository.BuildRepositoryImpl
 import com.uploader.db.DatabaseProvider
+import com.uploader.lifecycle.BuildDownloader
+import com.uploader.lifecycle.BuildInfoPersister
+import com.uploader.lifecycle.BuildInfoProvider
+import com.uploader.lifecycle.BuildUpdatesPersister
+import com.uploader.lifecycle.ChecksumVerifier
+import com.uploader.lifecycle.DownloadInfoGenerator
+import com.uploader.lifecycle.ProductInfoProvider
 import com.uploader.module.HicariProvider.hikari
-import com.uploader.provider.BuildDownloader
-import com.uploader.provider.BuildInfoPersister
-import com.uploader.provider.BuildInfoProvider
-import com.uploader.provider.BuildUpdatesPersister
-import com.uploader.provider.ChecksumVerifier
-import com.uploader.provider.DownloadInfoGenerator
-import com.uploader.provider.ProductInfoProvider
 import com.uploader.refresh.InformationRefresher
 import com.uploader.resource.BuildsStatusInfoProvider
 import com.uploader.resource.ProductBuildsProvider
@@ -32,7 +32,7 @@ object KoinCommonModule {
     fun module(configuration: AppConfig) =
         module {
             single { configuration }
-            single { DatabaseProvider() }
+            single(createdAtStart = true) { DatabaseProvider() }
             single<HttpClient> {
                 HttpClient {
                     install(HttpTimeout) {

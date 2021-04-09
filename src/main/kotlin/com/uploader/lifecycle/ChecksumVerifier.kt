@@ -1,4 +1,4 @@
-package com.uploader.provider
+package com.uploader.lifecycle
 
 import java.io.File
 import java.security.MessageDigest
@@ -16,12 +16,12 @@ class ChecksumVerifier : KoinComponent {
     private fun hashFile(file: File): String {
         val instance = MessageDigest.getInstance("SHA-256")
 
-        val buffer = ByteArray(1024)
+        val buffer = ByteArray(bufferSize)
         val stream = file.inputStream()
         var sizeRead: Int
 
         stream.use {
-            while (stream.read(buffer).also { sizeRead = it } != -1) {
+            while (stream.read(buffer).also { readNumber -> sizeRead = readNumber } != -1) {
                 instance.update(buffer, 0, sizeRead)
             }
         }
@@ -29,5 +29,9 @@ class ChecksumVerifier : KoinComponent {
         return instance
             .digest()
             .fold("", { str, it -> str + "%02x".format(it) })
+    }
+
+    private companion object {
+        const val bufferSize = 1024
     }
 }

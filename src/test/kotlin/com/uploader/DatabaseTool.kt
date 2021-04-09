@@ -24,8 +24,8 @@ import com.uploader.dao.entity.BuildInfo
 import com.uploader.dao.repository.BuildInfoRepository
 import com.uploader.dao.repository.BuildRepository
 import com.uploader.db.DatabaseProvider
-import com.uploader.provider.Constants.PYCHARM
-import com.uploader.provider.Constants.WEBSTORM
+import com.uploader.lifecycle.Constants.PYCHARM
+import com.uploader.lifecycle.Constants.WEBSTORM
 import java.util.concurrent.TimeUnit.SECONDS
 import kotlinx.coroutines.runBlocking
 import net.javacrumbs.jsonunit.JsonAssert.assertJsonEquals
@@ -59,19 +59,19 @@ object DatabaseTool : KoinComponent {
 
         val pyCharmBuild = runBlocking {
             provider.dbQuery {
-                buildRepository.getBy(PYCHARM_FULL_NUMBER, PYCHARM_CHANNEL)
+                buildRepository.getByFullNumberAndChannel(PYCHARM_FULL_NUMBER, PYCHARM_CHANNEL)
             }
         } ?: error("Build with $PYCHARM_FULL_NUMBER and $PYCHARM_CHANNEL was not found")
 
         val pyCharmBuild2 = runBlocking {
             provider.dbQuery {
-                buildRepository.getBy(PYCHARM_2_FULL_NUMBER, PYCHARM_2_CHANNEL)
+                buildRepository.getByFullNumberAndChannel(PYCHARM_2_FULL_NUMBER, PYCHARM_2_CHANNEL)
             }
         } ?: error("Build with $PYCHARM_2_FULL_NUMBER and $PYCHARM_2_CHANNEL was not found")
 
         val webstormBuild = runBlocking {
             provider.dbQuery {
-                buildRepository.getBy(WEBSTORM_FULL_NUMBER, WEBSTORM_CHANNEL)
+                buildRepository.getByFullNumberAndChannel(WEBSTORM_FULL_NUMBER, WEBSTORM_CHANNEL)
             }
         } ?: error("Build with $WEBSTORM_FULL_NUMBER and $WEBSTORM_CHANNEL was not found")
 
@@ -80,12 +80,12 @@ object DatabaseTool : KoinComponent {
 
     fun compareBuilds() {
         val pyCharmBuild = runBlocking {
-            provider.dbQuery { buildRepository.getBy(PYCHARM_FULL_NUMBER, PYCHARM_CHANNEL) }
+            provider.dbQuery { buildRepository.getByFullNumberAndChannel(PYCHARM_FULL_NUMBER, PYCHARM_CHANNEL) }
         }
 
         val pyCharmBuild2 = runBlocking {
             provider.dbQuery {
-                buildRepository.getBy(
+                buildRepository.getByFullNumberAndChannel(
                     PYCHARM_2_FULL_NUMBER,
                     PYCHARM_2_CHANNEL
                 )
@@ -117,7 +117,7 @@ object DatabaseTool : KoinComponent {
         )
 
         val webStormBuild = runBlocking {
-            provider.dbQuery { buildRepository.getBy(WEBSTORM_FULL_NUMBER, WEBSTORM_CHANNEL) }
+            provider.dbQuery { buildRepository.getByFullNumberAndChannel(WEBSTORM_FULL_NUMBER, WEBSTORM_CHANNEL) }
         }
 
         val expectedWebstormBuild = BuildDto(

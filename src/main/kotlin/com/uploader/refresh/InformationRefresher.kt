@@ -1,10 +1,10 @@
 package com.uploader.refresh
 
-import com.uploader.provider.BuildInfoProvider
-import com.uploader.provider.BuildInfoProvider.BuildUpdateInformation
-import com.uploader.provider.BuildUpdatesPersister
-import com.uploader.provider.Constants.getProductNameByProductCode
-import com.uploader.provider.Constants.productNameToUrl
+import com.uploader.lifecycle.BuildInfoProvider
+import com.uploader.lifecycle.BuildInfoProvider.BuildUpdateInformation
+import com.uploader.lifecycle.BuildUpdatesPersister
+import com.uploader.lifecycle.Constants.getProductNameByProductCode
+import com.uploader.lifecycle.Constants.productNameToUrl
 import java.time.LocalDate
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch

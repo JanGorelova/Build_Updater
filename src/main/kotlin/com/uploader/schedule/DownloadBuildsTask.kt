@@ -4,7 +4,7 @@ import com.uploader.dao.dto.BuildDto.State.CREATED
 import com.uploader.dao.dto.BuildDto.State.FAILED
 import com.uploader.dao.repository.BuildRepository
 import com.uploader.db.DatabaseProvider
-import com.uploader.provider.BuildDownloader
+import com.uploader.lifecycle.BuildDownloader
 import java.util.TimerTask
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch

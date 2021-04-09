@@ -3,7 +3,7 @@ package com.uploader.schedule
 import com.uploader.dao.dto.BuildDto.State.DOWNLOADED
 import com.uploader.dao.repository.BuildRepository
 import com.uploader.db.DatabaseProvider
-import com.uploader.provider.BuildInfoPersister
+import com.uploader.lifecycle.BuildInfoPersister
 import java.util.TimerTask
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch

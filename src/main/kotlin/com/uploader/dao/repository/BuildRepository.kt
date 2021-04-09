@@ -5,7 +5,7 @@ import com.uploader.dao.dto.BuildDto
 interface BuildRepository {
     fun insert(buildDto: BuildDto): Int
 
-    fun getBy(fullNumber: String, channelId: String): BuildDto?
+    fun getByFullNumberAndChannel(fullNumber: String, channelId: String): BuildDto?
 
     fun processing(id: Int, previousState: BuildDto.State)
 

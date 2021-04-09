@@ -36,7 +36,7 @@ class BuildRepositoryImpl : BuildRepository {
             .orderBy(Build.productName to ASC, Build.fullNumber to ASC)
             .map { it.mapToDto() }
 
-    override fun getBy(fullNumber: String, channelId: String): BuildDto? =
+    override fun getByFullNumberAndChannel(fullNumber: String, channelId: String): BuildDto? =
         Build
             .select { Build.fullNumber.eq(fullNumber).and { Build.channelId.eq(channelId) } }
             .mapNotNull { it.mapToDto() }
@@ -49,7 +49,8 @@ class BuildRepositoryImpl : BuildRepository {
                 it[state] = PROCESSING.name
                 it[dateUpdated] = DateTime.now()
             },
-            id = id
+            id = id,
+            comment = "Update from $previousState to PROCESSING"
         )
     }
 
@@ -60,7 +61,8 @@ class BuildRepositoryImpl : BuildRepository {
                 it[state] = FAILED.name
                 it[dateUpdated] = DateTime.now()
             },
-            id = id
+            id = id,
+            comment = "Update from $previousState to FAILED"
         )
     }
 
@@ -72,19 +74,23 @@ class BuildRepositoryImpl : BuildRepository {
                 it[Build.path] = path
                 it[dateUpdated] = DateTime.now()
             },
-            id = id
+            id = id,
+            comment = "Update from $previousState to DOWNLOADED"
         )
     }
 
     private fun update(
         where: (SqlExpressionBuilder.() -> Op<Boolean>),
         update: Build.(UpdateStatement) -> Unit,
-        id: Int
+        id: Int,
+        comment: String
     ) {
         val updatedCount = Build.update(where = where, body = update)
 
-        if (updatedCount == 0)
-            throw RuntimeException("Could not update build record with id: $id to $update")
+        if (updatedCount == 0) {
+            val currentState = Build.select { Build.id eq id }
+            throw RuntimeException("Could not update build record with id: $id to $comment, current state is: $currentState")
+        }
     }
 
     private fun ResultRow.mapToDto() =

@@ -3,7 +3,7 @@ package com.uploader.resource
 import com.fasterxml.jackson.databind.JsonNode
 import com.uploader.dao.repository.BuildInfoRepository
 import com.uploader.db.DatabaseProvider
-import com.uploader.provider.Constants.getProductNameByProductCode
+import com.uploader.lifecycle.Constants.getProductNameByProductCode
 import kotlinx.coroutines.runBlocking
 import org.koin.core.component.KoinApiExtension
 import org.koin.core.component.KoinComponent

@@ -1,4 +1,4 @@
-package com.uploader.provider
+package com.uploader.lifecycle
 
 import com.uploader.dao.dto.BuildInfoDto
 import com.uploader.dao.repository.BuildInfoRepository

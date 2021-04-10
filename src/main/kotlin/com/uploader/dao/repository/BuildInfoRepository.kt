@@ -4,11 +4,11 @@ import com.fasterxml.jackson.databind.JsonNode
 import com.uploader.dao.dto.BuildInfoDto
 
 interface BuildInfoRepository {
-    fun insert(buildInfoDto: BuildInfoDto)
+    suspend fun insert(buildInfoDto: BuildInfoDto)
 
-    fun findByBuildId(buildId: Int): BuildInfoDto?
+    suspend fun findByBuildId(buildId: Int): BuildInfoDto?
 
-    fun findAllByProductName(productName: String): Map<String, JsonNode>
+    suspend fun findAllByProductName(productName: String): Map<String, JsonNode>
 
-    fun findByProductNameAndBuildNumber(productName: String, fullNumber: String): JsonNode
+    suspend fun findByProductNameAndBuildNumber(productName: String, fullNumber: String): JsonNode
 }

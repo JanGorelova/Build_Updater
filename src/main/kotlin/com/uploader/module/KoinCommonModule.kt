@@ -1,8 +1,5 @@
 package com.uploader.module
 
-import com.fasterxml.jackson.databind.DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES
-import com.fasterxml.jackson.dataformat.xml.XmlMapper
-import com.fasterxml.jackson.module.kotlin.KotlinModule
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.uploader.config.AppConfig
 import com.uploader.dao.repository.BuildInfoRepository
@@ -18,6 +15,7 @@ import com.uploader.lifecycle.ChecksumVerifier
 import com.uploader.lifecycle.DownloadInfoGenerator
 import com.uploader.lifecycle.ProductInfoProvider
 import com.uploader.module.HicariProvider.hikari
+import com.uploader.module.XmlMapperProvider.xmlMapper
 import com.uploader.refresh.InformationRefresher
 import com.uploader.resource.BuildsStatusInfoProvider
 import com.uploader.resource.ProductBuildsProvider
@@ -47,7 +45,7 @@ object KoinCommonModule {
             single<BuildInfoRepository> { BuildInfoRepositoryImpl() }
             single { DownloadInfoGenerator() }
             factory { ProductInfoProvider() }
-            single { mapper() }
+            single { xmlMapper() }
             single { BuildInfoPersister() }
             single { BuildsStatusInfoProvider() }
             single { jacksonObjectMapper() }
@@ -57,13 +55,4 @@ object KoinCommonModule {
             single { DateTimeFormat.forPattern("MM/dd/yyyy HH:mm") }
             single { hikari(configuration) }
         }
-
-    private fun mapper(): XmlMapper {
-        val mapper = XmlMapper()
-        mapper.configure(FAIL_ON_UNKNOWN_PROPERTIES, false)
-        mapper.registerModule(KotlinModule())
-        mapper.findAndRegisterModules()
-
-        return mapper
-    }
 }

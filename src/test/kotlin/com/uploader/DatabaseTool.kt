@@ -34,11 +34,11 @@ import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.Matchers
 import org.jetbrains.exposed.sql.selectAll
 import org.koin.core.component.KoinApiExtension
-import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
+import org.koin.test.KoinTest
 
 @KoinApiExtension
-object DatabaseTool : KoinComponent {
+object DatabaseTool : KoinTest {
     private val provider by inject<DatabaseProvider>()
     private val buildRepository by inject<BuildRepository>()
     private val buildInfoRepository by inject<BuildInfoRepository>()
@@ -58,21 +58,15 @@ object DatabaseTool : KoinComponent {
             }
 
         val pyCharmBuild = runBlocking {
-            provider.dbQuery {
-                buildRepository.getByFullNumberAndChannel(PYCHARM_FULL_NUMBER, PYCHARM_CHANNEL)
-            }
+            buildRepository.getByFullNumberAndChannel(PYCHARM_FULL_NUMBER, PYCHARM_CHANNEL)
         } ?: error("Build with $PYCHARM_FULL_NUMBER and $PYCHARM_CHANNEL was not found")
 
         val pyCharmBuild2 = runBlocking {
-            provider.dbQuery {
-                buildRepository.getByFullNumberAndChannel(PYCHARM_2_FULL_NUMBER, PYCHARM_2_CHANNEL)
-            }
+            buildRepository.getByFullNumberAndChannel(PYCHARM_2_FULL_NUMBER, PYCHARM_2_CHANNEL)
         } ?: error("Build with $PYCHARM_2_FULL_NUMBER and $PYCHARM_2_CHANNEL was not found")
 
         val webstormBuild = runBlocking {
-            provider.dbQuery {
-                buildRepository.getByFullNumberAndChannel(WEBSTORM_FULL_NUMBER, WEBSTORM_CHANNEL)
-            }
+            buildRepository.getByFullNumberAndChannel(WEBSTORM_FULL_NUMBER, WEBSTORM_CHANNEL)
         } ?: error("Build with $WEBSTORM_FULL_NUMBER and $WEBSTORM_CHANNEL was not found")
 
         return listOf(pyCharmBuild, pyCharmBuild2, webstormBuild)
@@ -80,16 +74,14 @@ object DatabaseTool : KoinComponent {
 
     fun compareBuilds() {
         val pyCharmBuild = runBlocking {
-            provider.dbQuery { buildRepository.getByFullNumberAndChannel(PYCHARM_FULL_NUMBER, PYCHARM_CHANNEL) }
+            buildRepository.getByFullNumberAndChannel(PYCHARM_FULL_NUMBER, PYCHARM_CHANNEL)
         }
 
         val pyCharmBuild2 = runBlocking {
-            provider.dbQuery {
-                buildRepository.getByFullNumberAndChannel(
-                    PYCHARM_2_FULL_NUMBER,
-                    PYCHARM_2_CHANNEL
-                )
-            }
+            buildRepository.getByFullNumberAndChannel(
+                PYCHARM_2_FULL_NUMBER,
+                PYCHARM_2_CHANNEL
+            )
         }
 
         val expectedPyCharmBuild = BuildDto(
@@ -117,7 +109,7 @@ object DatabaseTool : KoinComponent {
         )
 
         val webStormBuild = runBlocking {
-            provider.dbQuery { buildRepository.getByFullNumberAndChannel(WEBSTORM_FULL_NUMBER, WEBSTORM_CHANNEL) }
+            buildRepository.getByFullNumberAndChannel(WEBSTORM_FULL_NUMBER, WEBSTORM_CHANNEL)
         }
 
         val expectedWebstormBuild = BuildDto(
@@ -141,7 +133,7 @@ object DatabaseTool : KoinComponent {
         comparePyCharmBuildInfos()
 
         val actualWebStormBuildInfo = runBlocking {
-            provider.dbQuery { buildInfoRepository.findAllByProductName(WEBSTORM).toList().first() }
+            buildInfoRepository.findAllByProductName(WEBSTORM).toList().first()
         }
         assertJsonEquals(
             actualWebStormBuildInfo.second,
@@ -151,7 +143,7 @@ object DatabaseTool : KoinComponent {
 
     fun comparePyCharmBuildInfos() {
         val actualPyCharmBuildInfos = runBlocking {
-            provider.dbQuery { buildInfoRepository.findAllByProductName(PYCHARM).toList() }
+            buildInfoRepository.findAllByProductName(PYCHARM).toList()
         }
 
         actualPyCharmBuildInfos.forEach { (fullNumber, info) ->

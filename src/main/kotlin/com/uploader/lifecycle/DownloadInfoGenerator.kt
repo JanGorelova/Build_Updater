@@ -28,7 +28,6 @@ class DownloadInfoGenerator : KoinComponent {
 
         val expectedCheckSum = runBlocking { client.get<String>(checkSumLink) }
 
-        print(expectedCheckSum)
         return DownloadInfo(
             downloadLink = downloadLink,
             checkSum = expectedCheckSum.substringBefore("*").trim()

@@ -12,7 +12,8 @@ data class AppConfig(
     val dbPassword: String,
     val dbName: String,
     val jobs: Map<JobType, JobConfig>,
-    val rootBuildsPath: String
+    val rootBuildsPath: String,
+    val downloadRequestTimeout: Duration = Duration.ofMinutes(20)
 ) {
     data class JobConfig(
         val delay: Duration = Duration.ofSeconds(10),

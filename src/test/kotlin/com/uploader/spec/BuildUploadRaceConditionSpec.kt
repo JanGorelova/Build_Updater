@@ -14,7 +14,6 @@ import com.uploader.dao.dto.BuildDto.State.CREATED
 import com.uploader.dao.dto.BuildDto.State.DOWNLOADED
 import com.uploader.dao.repository.BuildInfoRepository
 import com.uploader.dao.repository.BuildRepository
-import com.uploader.db.DatabaseProvider
 import com.uploader.lifecycle.BuildDownloader
 import com.uploader.lifecycle.Constants.PYCHARM
 import com.uploader.lifecycle.Constants.UPDATES_URL
@@ -43,7 +42,6 @@ class BuildUploadRaceConditionSpec : KoinTest {
     private val buildRepository by inject<BuildRepository>()
     private val buildInfoRepository by inject<BuildInfoRepository>()
     private val buildDownloader by inject<BuildDownloader>()
-    private val databaseProvider by inject<DatabaseProvider>()
 
     private lateinit var app: TestApp
 
@@ -64,9 +62,9 @@ class BuildUploadRaceConditionSpec : KoinTest {
             state = CREATED
         )
 
-        runBlocking { databaseProvider.dbQuery { buildRepository.insert(toSave) } }
+        runBlocking { buildRepository.insert(toSave) }
         val saved = runBlocking {
-            databaseProvider.dbQuery { buildRepository.getByFullNumberAndChannel(toSave.fullNumber, toSave.channelId) }
+            buildRepository.getByFullNumberAndChannel(toSave.fullNumber, toSave.channelId)
         } ?: error("Build $toSave was not saved")
 
         // when
@@ -88,21 +86,15 @@ class BuildUploadRaceConditionSpec : KoinTest {
             .atMost(AWAIT_AT_MOST_SECONDS, SECONDS)
             .untilAsserted {
                 val updated = runBlocking {
-                    databaseProvider.dbQuery {
-                        buildRepository.getByFullNumberAndChannel(
-                            saved.fullNumber,
-                            saved.channelId
-                        )
-                    }
+                    buildRepository.getByFullNumberAndChannel(
+                        saved.fullNumber,
+                        saved.channelId
+                    )
                 }
 
                 assertThat(updated?.state, equalTo(DOWNLOADED))
 
-                val info = runBlocking {
-                    databaseProvider.dbQuery {
-                        buildInfoRepository.findByBuildId(saved.id ?: error(""))
-                    }
-                }
+                val info = runBlocking { buildInfoRepository.findByBuildId(saved.id ?: error("")) }
 
                 assertThat(info, notNullValue())
                 assertThat(numberOfInvocations(DOWNLOAD_PYCHARM_URL), equalTo(1))

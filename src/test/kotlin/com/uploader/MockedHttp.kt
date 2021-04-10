@@ -6,6 +6,7 @@ import com.uploader.TestingConstants.DOWNLOAD_WEBSTORM_URL
 import com.uploader.TestingConstants.SHA_CHECK_PYCHARM_2_URL
 import com.uploader.TestingConstants.SHA_CHECK_PYCHARM_URL
 import com.uploader.TestingConstants.SHA_CHECK_WEBSTORM_URL
+import com.uploader.TestingData.productsUpdates
 import com.uploader.TestingTool.downloadFromResource
 import com.uploader.TestingTool.sha256
 import com.uploader.lifecycle.Constants.UPDATES_URL
@@ -25,16 +26,12 @@ object MockedHttp {
 
     init {
         client = HttpClient(MockEngine) {
-            install(HttpTimeout) {
-                requestTimeoutMillis = 10000
-            }
+            install(HttpTimeout) { requestTimeoutMillis = 10000 }
             engine {
                 addHandler { request ->
                     when (request.url.toString()) {
                         UPDATES_URL -> {
-                            respond(updates).also {
-                                putIfAbsentOrIncrement(UPDATES_URL)
-                            }
+                            respond(productsUpdates).also { putIfAbsentOrIncrement(UPDATES_URL) }
                         }
                         DOWNLOAD_PYCHARM_URL -> {
                             respond(ByteReadChannel(pyCharmBuild)).also {
@@ -72,7 +69,6 @@ object MockedHttp {
     private val pyCharmBuild = downloadFromResource("app/tars/pycharm.tar.gz")
     private val pyCharm2Build = downloadFromResource("app/tars/pycharm-2.tar.gz")
     private val webStormBuild = downloadFromResource("app/tars/webstorm.tar.gz")
-    private val updates = downloadFromResource("updates/test_with_two_products.xml")
 
     fun reset() {
         invocations.clear()

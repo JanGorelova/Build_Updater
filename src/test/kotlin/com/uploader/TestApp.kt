@@ -6,11 +6,11 @@ import java.io.File
 import mu.KLogging
 import org.awaitility.Awaitility.await
 import org.koin.core.component.KoinApiExtension
-import org.koin.core.component.KoinComponent
 import org.koin.core.context.GlobalContext
+import org.koin.test.KoinTest
 
 @KoinApiExtension
-class TestApp(environment: String = "dev") : Closeable, KoinComponent {
+class TestApp(environment: String = "dev") : Closeable, KoinTest {
     val config = TestConfigProvider[environment]
 
     private val database: TestDatabase = TestDatabase(config.dbPort)

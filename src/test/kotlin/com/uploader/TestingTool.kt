@@ -5,8 +5,15 @@ import java.security.MessageDigest
 object TestingTool {
     fun downloadFromResource(path: String): ByteArray =
         this::class.java
-            .classLoader.getResourceAsStream(path)
+            .classLoader
+            .getResourceAsStream(path)
             ?.readBytes() ?: error("Resource $path was not found")
+
+    fun getResourceFullPath(path: String): String =
+        this::class.java
+            .classLoader
+            .getResource(path)
+            ?.path ?: error("URL for path: $path was not found")
 
     fun sha256(byteArray: ByteArray) =
         MessageDigest

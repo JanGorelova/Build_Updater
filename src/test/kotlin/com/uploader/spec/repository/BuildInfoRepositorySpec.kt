@@ -7,7 +7,6 @@ import com.uploader.TestingData.py1BuildDto
 import com.uploader.TestingData.py2BuildDto
 import com.uploader.dao.repository.BuildInfoRepository
 import com.uploader.dao.repository.BuildRepository
-import com.uploader.db.DatabaseProvider
 import kotlinx.coroutines.runBlocking
 import net.javacrumbs.jsonunit.JsonAssert.assertJsonEquals
 import org.hamcrest.CoreMatchers.equalTo
@@ -23,7 +22,6 @@ import org.koin.test.KoinTest
 class BuildInfoRepositorySpec : KoinTest {
     private val buildInfoRepository by inject<BuildInfoRepository>()
     private val buildRepository by inject<BuildRepository>()
-    private val databaseProvider by inject<DatabaseProvider>()
     private val mapper by inject<ObjectMapper>()
 
     private lateinit var app: TestApp
@@ -37,20 +35,16 @@ class BuildInfoRepositorySpec : KoinTest {
     fun `should find build info by build id`() {
         // given
         val buildDto = py1BuildDto
-        val buildId = runBlocking { databaseProvider.dbQuery { buildRepository.insert(buildDto) } }
+        val buildId = runBlocking { buildRepository.insert(buildDto) }
 
         val buildInfoDto = buildInfoDto(
             buildId = buildId,
             info = "{test : info}"
         )
-        runBlocking { databaseProvider.dbQuery { buildInfoRepository.insert(buildInfoDto) } }
+        runBlocking { buildInfoRepository.insert(buildInfoDto) }
 
         // when
-        val actual = runBlocking {
-            databaseProvider.dbQuery {
-                buildInfoRepository.findByBuildId(buildId)
-            }
-        }
+        val actual = runBlocking { buildInfoRepository.findByBuildId(buildId) }
 
         // then
         assertThat(actual, equalTo(buildInfoDto))
@@ -61,8 +55,8 @@ class BuildInfoRepositorySpec : KoinTest {
         // given
         val py1Dto = py1BuildDto
         val py2Dto = py2BuildDto
-        val py1Id = runBlocking { databaseProvider.dbQuery { buildRepository.insert(py1BuildDto) } }
-        val py2Id = runBlocking { databaseProvider.dbQuery { buildRepository.insert(py2BuildDto) } }
+        val py1Id = runBlocking { buildRepository.insert(py1BuildDto) }
+        val py2Id = runBlocking { buildRepository.insert(py2BuildDto) }
 
         val py1buildInfoDto = buildInfoDto(
             buildId = py1Id,
@@ -76,14 +70,13 @@ class BuildInfoRepositorySpec : KoinTest {
                 {"test": "py2"}
             """.trimIndent()
         )
-        runBlocking { databaseProvider.dbQuery { buildInfoRepository.insert(py1buildInfoDto) } }
-        runBlocking { databaseProvider.dbQuery { buildInfoRepository.insert(py2buildInfoDto) } }
+        runBlocking { buildInfoRepository.insert(py1buildInfoDto) }
+        runBlocking { buildInfoRepository.insert(py2buildInfoDto) }
 
         // when
         val actual = runBlocking {
-            databaseProvider.dbQuery {
-                buildInfoRepository.findAllByProductName(py1Dto.productName)
-            }
+
+            buildInfoRepository.findAllByProductName(py1Dto.productName)
         }
 
         // then
@@ -99,7 +92,7 @@ class BuildInfoRepositorySpec : KoinTest {
     fun `should find by product name and build number`() {
         // given
         val py1Dto = py1BuildDto
-        val py1Id = runBlocking { databaseProvider.dbQuery { buildRepository.insert(py1BuildDto) } }
+        val py1Id = runBlocking { buildRepository.insert(py1BuildDto) }
 
         val py1buildInfoDto = buildInfoDto(
             buildId = py1Id,
@@ -107,13 +100,11 @@ class BuildInfoRepositorySpec : KoinTest {
                 {"test": "py1"}
             """.trimIndent()
         )
-        runBlocking { databaseProvider.dbQuery { buildInfoRepository.insert(py1buildInfoDto) } }
+        runBlocking { buildInfoRepository.insert(py1buildInfoDto) }
 
         // when
         val actual = runBlocking {
-            databaseProvider.dbQuery {
-                buildInfoRepository.findByProductNameAndBuildNumber(py1Dto.productName, py1Dto.fullNumber)
-            }
+            buildInfoRepository.findByProductNameAndBuildNumber(py1Dto.productName, py1Dto.fullNumber)
         }
 
         // then

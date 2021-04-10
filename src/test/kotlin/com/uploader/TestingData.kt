@@ -9,13 +9,20 @@ import com.uploader.TestingConstants.PYCHARM_VERSION
 import com.uploader.TestingConstants.WEBSTORM_CHANNEL
 import com.uploader.TestingConstants.WEBSTORM_FULL_NUMBER
 import com.uploader.TestingConstants.WEBSTORM_VERSION
+import com.uploader.TestingTool.downloadFromResource
 import com.uploader.dao.dto.BuildDto
 import com.uploader.dao.dto.BuildDto.State.CREATED
 import com.uploader.dao.dto.BuildInfoDto
+import com.uploader.lifecycle.BuildInfoProvider.BuildUpdateInformation
 import com.uploader.lifecycle.Constants.PYCHARM
 import com.uploader.lifecycle.Constants.WEBSTORM
+import java.time.LocalDate
+import org.koin.core.component.KoinApiExtension
 
+@KoinApiExtension
 object TestingData {
+    val productsUpdates = downloadFromResource("updates/test_with_two_products.xml")
+
     val py1BuildDto = BuildDto(
         productName = PYCHARM,
         fullNumber = PYCHARM_FULL_NUMBER,
@@ -40,9 +47,53 @@ object TestingData {
         state = CREATED
     )
 
-    fun buildInfoDto(buildId: Int, info: String) =
+    val ws1BuildUpdate = BuildUpdateInformation(
+        productName = WEBSTORM,
+        channelId = WEBSTORM_CHANNEL,
+        fullNumer = WEBSTORM_FULL_NUMBER,
+        version = WEBSTORM_VERSION,
+        releaseDate = LocalDate.of(2021, 4, 6)
+    )
+
+    val ws2BuildUpdate = BuildUpdateInformation(
+        productName = WEBSTORM,
+        channelId = WEBSTORM_CHANNEL,
+        fullNumer = "203.7717.59",
+        version = "2019.3.3",
+        releaseDate = LocalDate.of(2019, 11, 30)
+    )
+
+    val py1BuildUpdate = BuildUpdateInformation(
+        productName = PYCHARM,
+        channelId = PYCHARM_CHANNEL,
+        fullNumer = PYCHARM_FULL_NUMBER,
+        version = PYCHARM_VERSION,
+        releaseDate = LocalDate.of(2021, 4, 7)
+    )
+
+    val py2BuildUpdate = BuildUpdateInformation(
+        productName = PYCHARM,
+        channelId = PYCHARM_2_CHANNEL,
+        fullNumer = PYCHARM_2_FULL_NUMBER,
+        version = PYCHARM_2_VERSION,
+        releaseDate = null
+    )
+
+    val py3BuildUpdate = BuildUpdateInformation(
+        productName = PYCHARM,
+        channelId = PYCHARM_CHANNEL,
+        fullNumer = "203.7717.81",
+        version = "2019.3.5",
+        releaseDate = LocalDate.of(2019, 12, 2)
+    )
+
+    fun buildInfoDto(buildId: Int = 1, info: String = """{"test": "info"}""") =
         BuildInfoDto(
             buildId = buildId,
             info = info
         )
+
+    fun buildUpdatesInfo(): List<BuildUpdateInformation> {
+        return listOf(ws1BuildUpdate, ws2BuildUpdate, py1BuildUpdate, py3BuildUpdate, py2BuildUpdate)
+    }
 }

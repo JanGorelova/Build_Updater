@@ -38,7 +38,7 @@ object TestConfigProvider {
             else -> error("")
         }
 
-    private fun appConfig(jobs: Map<JobType, JobConfig> = mapOf()) =
+    fun appConfig(jobs: Map<JobType, JobConfig> = mapOf()) =
         AppConfig(
             host = "localhost",
             port = 8080,

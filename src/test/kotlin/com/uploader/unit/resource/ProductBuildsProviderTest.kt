@@ -17,6 +17,7 @@ import org.hamcrest.CoreMatchers.equalTo
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.RegisterExtension
 import org.koin.core.component.KoinApiExtension
 import org.koin.dsl.module
@@ -24,6 +25,8 @@ import org.koin.test.KoinTest
 import org.koin.test.junit5.KoinTestExtension
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.stub
+import org.mockito.kotlin.verify
+import org.mockito.kotlin.verifyZeroInteractions
 
 @KoinApiExtension
 class ProductBuildsProviderTest : KoinTest {
@@ -57,10 +60,56 @@ class ProductBuildsProviderTest : KoinTest {
         }
 
         // when
-        val result = ProductBuildsProvider().provideByProduct("PCA")
+        val result = runBlocking { ProductBuildsProvider().provideByProduct("PCA") }
 
         // then
         assertThat(result, equalTo(expected))
+    }
+
+    @Test
+    fun `should fail if unknown product code provided`() {
+        // when
+        val invocation: () -> Unit = { runBlocking { ProductBuildsProvider().provideByProduct("UNKNOWN") } }
+
+        // then
+        assertThrows<IllegalStateException>(invocation)
+        verifyZeroInteractions(buildInfoRepository)
+    }
+
+    @Test
+    fun `should fail if info was not found`() {
+        // given
+        buildInfoRepository.stub {
+            onBlocking { findByProductNameAndBuildNumber(WEBSTORM, WEBSTORM_FULL_NUMBER) }.thenReturn(null)
+        }
+
+        // when
+        val invocation: () -> Unit = {
+            runBlocking {
+                ProductBuildsProvider().provideByProductCodeAndBuild("WS", WEBSTORM_FULL_NUMBER)
+            }
+        }
+
+        // then
+        val error = assertThrows<IllegalStateException>(invocation)
+        runBlocking {
+            verify(buildInfoRepository)
+                .findByProductNameAndBuildNumber(WEBSTORM, WEBSTORM_FULL_NUMBER)
+        }
+        assertThat(error.message, equalTo("Specified build: 211.6693.108 was not found"))
+    }
+
+    @Test
+    fun `should fail to provide by code and build if unknown product code provided`() {
+        // given
+
+        // when
+        val invocation: () -> Unit =
+            { runBlocking { ProductBuildsProvider().provideByProductCodeAndBuild("UNKNOWN", "Build_number") } }
+
+        // then
+        assertThrows<IllegalStateException>(invocation)
+        verifyZeroInteractions(buildInfoRepository)
     }
 
     @Test

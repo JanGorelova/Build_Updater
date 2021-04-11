@@ -2,7 +2,6 @@ plugins {
     id 'org.jetbrains.kotlin.jvm' version '1.4.30'
     id 'application'
     id 'com.github.johnrengelman.shadow' version "5.0.0"
-    id 'org.flywaydb.flyway' version "7.7.0"
     id "org.jmailen.kotlinter" version "3.4.0"
 }
 
@@ -24,21 +23,13 @@ repositories {
 }
 
 application {
-    mainClassName = 'io.ktor.server.netty.EngineMain'
+    mainClassName = 'com.uploader.ApplicationKt'
 }
-
 
 shadowJar {
     manifest {
         attributes 'Main-Class': mainClassName
     }
-}
-
-flyway {
-    url = 'jdbc:postgresql://localhost:5432/test'
-    user = 'test'
-    password = 'test'
-    schemas = ['test']
 }
 
 compileKotlin {
@@ -48,19 +39,23 @@ compileTestKotlin {
     kotlinOptions.jvmTarget = "1.8"
 }
 
+sourceSets {
+    main.kotlin.srcDirs = [ 'src/main/kotlin' ]
+    main.resources.srcDirs = [ 'src/main/resources' ]
+}
+
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
+    implementation "ch.qos.logback:logback-classic:$logback_version"
+    implementation "io.github.microutils:kotlin-logging:$logging_version"
+
     implementation "io.ktor:ktor-server-core:$ktor_version"
     implementation "io.ktor:ktor-server-netty:$ktor_version"
-    implementation "ch.qos.logback:logback-classic:$logback_version"
-    implementation "io.github.microutils:kotlin-logging:1.4"
     implementation "io.ktor:ktor-client-core:$ktor_version"
     implementation "io.ktor:ktor-client-cio:$ktor_version"
+    implementation "io.ktor:ktor-html-builder:$ktor_version"
+    implementation "io.ktor:ktor-client-mock:$ktor_version"
 
-    testImplementation "io.ktor:ktor-server-test-host:$ktor_test_version"
-    testImplementation "org.junit.jupiter:junit-jupiter-api:$junit_version"
-    testImplementation "org.testcontainers:testcontainers:$test_containers_version"
-    testImplementation "org.testcontainers:postgresql:$postgres_test_version"
     implementation "org.koin:koin-ktor:$koin_version"
     implementation "com.zaxxer:HikariCP:$hikari_version"
 
@@ -68,24 +63,34 @@ dependencies {
     implementation "org.jetbrains.exposed:exposed-dao:$exposed_version"
     implementation "org.jetbrains.exposed:exposed-jdbc:$exposed_version"
     implementation "org.jetbrains.exposed:exposed-jodatime:$joda_time_version"
+
     implementation "com.fasterxml.jackson.dataformat:jackson-dataformat-xml:$jackson_version"
-    implementation "org.apache.commons:commons-compress:1.2"
-    implementation "org.apache.commons:commons-vfs2:2.6.0"
-    implementation "org.postgresql:postgresql:42.2.19"
-    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.4.2"
-    implementation "com.fasterxml.jackson.module:jackson-module-kotlin:2.12.0"
-    implementation "com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.7.3"
+
+    implementation "org.apache.commons:commons-compress:$commons_compress"
+    implementation "org.apache.commons:commons-vfs2:$commons_vfs"
+
+    implementation "org.postgresql:postgresql:$postgres"
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlin_coroutines"
+
+    implementation "com.fasterxml.jackson.module:jackson-module-kotlin:$jackson_kotlin"
+    implementation "com.fasterxml.jackson.datatype:jackson-datatype-jsr310:$jackson_data_type"
 
     implementation "org.koin:koin-test:$koin_version"
     implementation "org.koin:koin-test-junit5:$koin_version"
-    implementation "org.mockito:mockito-inline:3.8.0"
-    implementation "commons-io:commons-io:2.8.0"
-    implementation "io.ktor:ktor-html-builder:$ktor_version"
-    implementation "io.ktor:ktor-client-mock:$ktor_version"
-    testImplementation "org.awaitility:awaitility:4.0.1"
-    testImplementation "org.hamcrest:hamcrest-all:1.3"
-    testImplementation "net.javacrumbs.json-unit:json-unit:2.3.0"
+
+    implementation "org.mockito:mockito-inline:$mockito_inline"
+    implementation "commons-io:commons-io:$io_commons"
+
+    testImplementation "io.ktor:ktor-server-test-host:$ktor_test_version"
+    testImplementation "org.junit.jupiter:junit-jupiter-api:$junit_version"
     testImplementation "org.junit.jupiter:junit-jupiter-params:$junit_version"
-    testImplementation "org.mockito.kotlin:mockito-kotlin:3.1.0"
+
+    testImplementation "org.testcontainers:testcontainers:$test_containers_version"
+    testImplementation "org.testcontainers:postgresql:$postgres_test_version"
+
+    testImplementation "org.awaitility:awaitility:$awaitility"
+    testImplementation "org.hamcrest:hamcrest-all:$hamcrest"
+    testImplementation "net.javacrumbs.json-unit:json-unit:$json_unit"
+    testImplementation "org.mockito.kotlin:mockito-kotlin:$mockito_kotlin"
 }
 

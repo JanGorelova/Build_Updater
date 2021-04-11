@@ -7,6 +7,7 @@ import io.ktor.application.uninstallAllFeatures
 import io.ktor.server.engine.embeddedServer
 import io.ktor.server.netty.Netty
 import io.ktor.server.netty.NettyApplicationEngine
+import mu.KLogging
 import org.koin.core.component.KoinApiExtension
 import org.koin.core.component.KoinComponent
 import org.koin.core.context.stopKoin
@@ -14,7 +15,10 @@ import org.koin.core.context.stopKoin
 @KoinApiExtension
 class App(val config: AppConfig) : KoinComponent {
     private val engine: NettyApplicationEngine =
-        embeddedServer(Netty, port = config.port, host = config.host) { this.module(config) }
+        embeddedServer(Netty, port = config.port, host = config.host) {
+            logger.info { "Config: $config" }
+            this.module(config)
+        }
 
     @KoinApiExtension
     fun start() {
@@ -29,4 +33,6 @@ class App(val config: AppConfig) : KoinComponent {
         engine.stop(10, 10)
         stopKoin()
     }
+
+    private companion object : KLogging()
 }

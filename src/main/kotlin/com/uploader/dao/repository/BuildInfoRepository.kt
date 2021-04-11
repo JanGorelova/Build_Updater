@@ -10,5 +10,5 @@ interface BuildInfoRepository {
 
     suspend fun findAllByProductName(productName: String): Map<String, JsonNode>
 
-    suspend fun findByProductNameAndBuildNumber(productName: String, fullNumber: String): JsonNode
+    suspend fun findByProductNameAndBuildNumber(productName: String, fullNumber: String): JsonNode?
 }

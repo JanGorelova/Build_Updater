@@ -14,8 +14,12 @@ import com.uploader.lifecycle.DownloadInfoGenerator.DownloadInfo
 import com.uploader.lifecycle.FileHelper
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.mock.MockEngine
+import io.ktor.client.engine.mock.MockRequestHandleScope
 import io.ktor.client.engine.mock.respond
+import io.ktor.client.engine.mock.respondError
 import io.ktor.client.features.HttpTimeout
+import io.ktor.client.request.HttpResponseData
+import io.ktor.http.HttpStatusCode.Companion.RequestTimeout
 import io.ktor.utils.io.ByteReadChannel
 import java.io.File
 import java.util.concurrent.atomic.AtomicInteger
@@ -81,12 +85,12 @@ class BuildDownloaderTest : KoinTest {
         config = appConfig()
         fileHelper = mock()
         clientCallNumber = AtomicInteger(0)
-        client = httpMock()
     }
 
     @Test
     fun `should download build successfully`() {
         // given
+        client = httpMock()
         val downloadInfo = DownloadInfo(
             downloadLink = link,
             checkSum = "384090390ganu45"
@@ -116,6 +120,7 @@ class BuildDownloaderTest : KoinTest {
     @Test
     fun `should not download if already exists`() {
         // given
+        client = httpMock()
         whenever(downloadInfoGenerator[buildDto]).thenReturn(downloadInfo)
         whenever(fileHelper.directoryAndFilePath(buildDto)).thenReturn(directory to filePath)
         whenever(fileHelper.alreadyExists(filePath, checkSum = downloadInfo.checkSum)).thenReturn(true)
@@ -135,9 +140,9 @@ class BuildDownloaderTest : KoinTest {
     @Test
     fun `should fail to download if exception thrown`() {
         // given
+        client = httpMock { respondError(RequestTimeout) }
         whenever(downloadInfoGenerator[buildDto]).thenReturn(downloadInfo)
-        whenever(fileHelper.directoryAndFilePath(buildDto))
-            .thenThrow(RuntimeException("Something went wrong!"))
+        whenever(fileHelper.directoryAndFilePath(buildDto)).thenReturn(directory to filePath)
 
         // when
         runBlocking { BuildDownloader().download(wsBuildDto.copy(id = id)) }
@@ -154,6 +159,7 @@ class BuildDownloaderTest : KoinTest {
     @Test
     fun `should do nothing if another thread already processing current build`() {
         // given
+        client = httpMock()
         buildRepository.stub {
             onBlocking { processing(id, CREATED) }.thenThrow(RuntimeException("Could not update!"))
         }
@@ -172,12 +178,15 @@ class BuildDownloaderTest : KoinTest {
         assertEquals(0, clientCallNumber.get())
     }
 
-    private fun httpMock() = HttpClient(MockEngine) {
+    private fun httpMock(
+        respond: MockRequestHandleScope.() -> HttpResponseData =
+            { respond(ByteReadChannel("test content")).also { clientCallNumber.incrementAndGet() } }
+    ) = HttpClient(MockEngine) {
         install(HttpTimeout) { requestTimeoutMillis = 10000 }
         engine {
             addHandler { request ->
                 when (request.url.encodedPath) {
-                    "/$link" -> respond(ByteReadChannel("test content")).also { clientCallNumber.incrementAndGet() }
+                    "/$link" -> respond.invoke(this)
                     else -> error("Unknown url")
                 }
             }

@@ -33,7 +33,7 @@ object Constants {
         WEBSTORM to "webstorm/WebStorm"
     )
 
-    val supportedCodes = mapOf(
+    private val supportedCodes = mapOf(
         CLION to listOf("CL"),
         DATA_GRIP to listOf("DB"),
         GO_LAND to listOf("GO"),
@@ -50,6 +50,5 @@ object Constants {
 
     fun getProductNameByProductCode(productCode: String) =
         supportedCodes.entries
-            .first { productCode in it.value }
-            .key
+            .firstOrNull { productCode in it.value }?.key ?: error("Unknown product code specified: $productCode")
 }

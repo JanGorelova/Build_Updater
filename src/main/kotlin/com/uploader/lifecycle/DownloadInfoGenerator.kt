@@ -15,8 +15,8 @@ class DownloadInfoGenerator : KoinComponent {
 
     operator fun get(buildDto: BuildDto): DownloadInfo {
         val productName = buildDto.productName
-        val productUrl = productNameToUrl[productName]?.replace("{version}", buildDto.version)
-            ?: error("Unknown product name")
+        val productUrl = productNameToUrl[productName]?.replace("{version}", buildDto.version.substringBeforeLast("."))
+            ?: error("Unknown product name: $productName")
 
         val buildNumber = when (buildDto.version.contains(" ")) {
             true -> buildDto.fullNumber

@@ -1,7 +1,6 @@
 package com.uploader.unit.schedule
 
 import com.uploader.TestingData.py1BuildDto
-import com.uploader.TestingData.py2BuildDto
 import com.uploader.TestingData.wsBuildDto
 import com.uploader.dao.dto.BuildDto.State.DOWNLOADED
 import com.uploader.dao.repository.BuildRepository
@@ -50,7 +49,7 @@ class PersistProductInfosTaskTest : KoinTest {
         val downloadedWs = wsBuildDto.copy(id = 2, path = "/test/path/test", state = DOWNLOADED)
         buildRepository.stub {
             onBlocking { gelAllWithStates(listOf(DOWNLOADED)) }
-                .thenReturn(listOf(downloadedWs, downloadedPy1, py2BuildDto))
+                .thenReturn(listOf(downloadedWs, downloadedPy1))
         }
 
         // when

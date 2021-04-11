@@ -57,7 +57,7 @@ class BuildInfoRepositoryImpl : BuildInfoRepository, KoinComponent {
                 .toMap()
         }
 
-    override suspend fun findByProductNameAndBuildNumber(productName: String, fullNumber: String): JsonNode =
+    override suspend fun findByProductNameAndBuildNumber(productName: String, fullNumber: String): JsonNode? =
         databaseProvider.dbQuery {
             val join = Join(
                 Build, BuildInfo,
@@ -68,7 +68,7 @@ class BuildInfoRepositoryImpl : BuildInfoRepository, KoinComponent {
 
             join.select { Build.fullNumber eq Build.fullNumber }
                 .map { jsonMapper.readTree(it[product_info]) }
-                .first()
+                .firstOrNull()
         }
 
     private fun ResultRow.mapToDto() =

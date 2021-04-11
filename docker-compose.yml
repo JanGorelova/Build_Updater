@@ -1,11 +1,12 @@
-version: '2.2'
+version: '3.5'
+
 services:
   db:
     image: "postgres"
     env_file:
       - database.env
     ports:
-    - 5432:5432
+      - 5432:5432
     volumes:
       - ./resources/database-data:/var/lib/postgresql/data/
 
@@ -15,9 +16,11 @@ services:
     build:
       context: ./
       dockerfile: Dockerfile
-    expose:
+    ports:
       - 8080
-    restart: always
+    restart: on-failure
+    volumes:
+      - ./resources/apps/downloads:/app/resources
 
   nginx:
     image: nginx:latest
@@ -31,4 +34,4 @@ services:
 networks:
   default:
     driver: bridge
-    name: web
+    name: common

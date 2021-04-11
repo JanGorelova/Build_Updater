@@ -13,6 +13,7 @@ import com.uploader.lifecycle.BuildInfoProvider
 import com.uploader.lifecycle.BuildUpdatesPersister
 import com.uploader.lifecycle.ChecksumVerifier
 import com.uploader.lifecycle.DownloadInfoGenerator
+import com.uploader.lifecycle.FileHelper
 import com.uploader.lifecycle.ProductInfoProvider
 import com.uploader.module.HicariProvider.hikari
 import com.uploader.module.XmlMapperProvider.xmlMapper
@@ -54,5 +55,6 @@ object KoinCommonModule {
             single { ChecksumVerifier() }
             single { DateTimeFormat.forPattern("MM/dd/yyyy HH:mm") }
             single { hikari(configuration) }
+            single { FileHelper() }
         }
 }

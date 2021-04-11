@@ -6,7 +6,6 @@ import com.uploader.config.AppConfig.JobConfig
 import com.uploader.module.JobType
 import io.ktor.config.ApplicationConfig
 import io.ktor.config.HoconApplicationConfig
-import java.nio.file.Paths
 import java.time.Duration
 
 class ConfigLoader {
@@ -14,7 +13,7 @@ class ConfigLoader {
 
     fun extractConfig(): AppConfig {
         val hoconEnvironment = factory.config("ktor.deployment.dev")
-        val relativeBuildPath = hoconEnvironment.property("relativeBuildsPath").getString()
+        val buildsPath = hoconEnvironment.property("buildsPath").getString()
         return AppConfig(
             hoconEnvironment.property("host").getString(),
             Integer.parseInt(hoconEnvironment.property("port").getString()),
@@ -24,7 +23,7 @@ class ConfigLoader {
             hoconEnvironment.property("databasePassword").getString(),
             hoconEnvironment.property("databaseName").getString(),
             extractJobConfig(hoconEnvironment),
-            "${Paths.get("").toRealPath()}$relativeBuildPath"
+            buildsPath
         )
     }
 

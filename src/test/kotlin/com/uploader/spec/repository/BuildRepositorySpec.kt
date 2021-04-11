@@ -170,6 +170,54 @@ class BuildRepositorySpec : KoinTest {
         assertThat(error.message, equalTo(expected.message))
     }
 
+    @Test
+    fun `should fail if build was marked as failed from another thread`() {
+        // given
+        val id = runBlocking { buildRepository.insert(py1BuildDto) }
+        runBlocking {
+            buildRepository.processing(id, CREATED)
+            buildRepository.failed(id, PROCESSING)
+        }
+
+        // when
+        val invocation: () -> Unit = {
+            runBlocking {
+                buildRepository.failed(id, previousState = PROCESSING)
+            }
+        }
+
+        // then
+        val error = assertThrows<RuntimeException>(invocation)
+        val expectedMessage =
+            "Could not update build record with id: 1, comment: from PROCESSING to FAILED, current state is: FAILED"
+
+        assertThat(error.message, equalTo(expectedMessage))
+    }
+
+    @Test
+    fun `should fail if build was marked as downloaded from another thread`() {
+        // given
+        val id = runBlocking { buildRepository.insert(py1BuildDto) }
+        runBlocking {
+            buildRepository.processing(id, CREATED)
+            buildRepository.downloaded(id, PROCESSING, "test/path")
+        }
+
+        // when
+        val invocation: () -> Unit = {
+            runBlocking {
+                buildRepository.downloaded(id, previousState = PROCESSING, "test1/path")
+            }
+        }
+
+        // then
+        val error = assertThrows<RuntimeException>(invocation)
+        val expectedMessage =
+            "Could not update build record with id: 1, comment: from PROCESSING to DOWNLOADED, current state is: DOWNLOADED"
+
+        assertThat(error.message, equalTo(expectedMessage))
+    }
+
     @AfterEach
     fun close() {
         app.close()
@@ -194,6 +242,10 @@ class BuildRepositorySpec : KoinTest {
         fun `applied changes for not allowed previous states`() = listOf(
             arguments(
                 { b: BuildRepository -> runBlocking { b.processing(1, DOWNLOADED) } },
+                "Only [CREATED, FAILED] previous states are allowed"
+            ),
+            arguments(
+                { b: BuildRepository -> runBlocking { b.processing(1, PROCESSING) } },
                 "Only [CREATED, FAILED] previous states are allowed"
             ),
             arguments(

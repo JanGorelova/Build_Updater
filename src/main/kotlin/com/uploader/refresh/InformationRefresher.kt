@@ -22,16 +22,21 @@ class InformationRefresher : KoinComponent {
 
         GlobalScope.launch {
             infoProvider.provide()
+                .filterNot { isBetaOrEap(it.version) }
                 .filter { shouldBeRefreshed(productNames, it.productName) }
                 .filter { it.releasedLessThanYearAgo() }
                 .forEach { GlobalScope.launch { persister.saveBuildUpdateIfRequired(it) } }
         }
     }
 
+    private fun isBetaOrEap(version: String): Boolean {
+        val lowerCaseVersion = version.toLowerCase()
+
+        return lowerCaseVersion.contains("eap") || lowerCaseVersion.contains("beta")
+    }
+
     private fun mapCodesToProductNames(productCodes: Set<String>) =
-        productCodes.map {
-            getProductNameByProductCode(it)
-        }.toSet()
+        productCodes.map { getProductNameByProductCode(it) }.toSet()
 
     private fun shouldBeRefreshed(productNames: Set<String>? = null, productName: String): Boolean {
         val productsToUpdate = productNames?.let { names ->

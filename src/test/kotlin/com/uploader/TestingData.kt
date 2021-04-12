@@ -21,7 +21,7 @@ import org.koin.core.component.KoinApiExtension
 
 @KoinApiExtension
 object TestingData {
-    val productsUpdates = downloadFromResource("updates/test_with_two_products.xml")
+    fun productsUpdates() = downloadFromResource("updates/test_with_two_products.xml")
 
     val py1BuildDto = BuildDto(
         productName = PYCHARM,
@@ -50,7 +50,7 @@ object TestingData {
     val ws1BuildUpdate = BuildUpdateInformation(
         productName = WEBSTORM,
         channelId = WEBSTORM_CHANNEL,
-        fullNumer = WEBSTORM_FULL_NUMBER,
+        fullNumber = WEBSTORM_FULL_NUMBER,
         version = WEBSTORM_VERSION,
         releaseDate = LocalDate.of(2021, 4, 6)
     )
@@ -58,31 +58,30 @@ object TestingData {
     val ws2BuildUpdate = BuildUpdateInformation(
         productName = WEBSTORM,
         channelId = WEBSTORM_CHANNEL,
-        fullNumer = "203.7717.59",
+        fullNumber = "203.7717.59",
         version = "2019.3.3",
         releaseDate = LocalDate.of(2019, 11, 30)
     )
 
-    val py1BuildUpdate = BuildUpdateInformation(
+    val py1BuildUpdate = buildUpdateInformation(
         productName = PYCHARM,
         channelId = PYCHARM_CHANNEL,
-        fullNumer = PYCHARM_FULL_NUMBER,
+        fullNumber = PYCHARM_FULL_NUMBER,
         version = PYCHARM_VERSION,
         releaseDate = LocalDate.of(2021, 4, 7)
     )
 
-    val py2BuildUpdate = BuildUpdateInformation(
+    val py2BuildUpdate = buildUpdateInformation(
         productName = PYCHARM,
         channelId = PYCHARM_2_CHANNEL,
-        fullNumer = PYCHARM_2_FULL_NUMBER,
-        version = PYCHARM_2_VERSION,
-        releaseDate = null
+        fullNumber = PYCHARM_2_FULL_NUMBER,
+        version = PYCHARM_2_VERSION
     )
 
-    val py3BuildUpdate = BuildUpdateInformation(
+    val py3BuildUpdate = buildUpdateInformation(
         productName = PYCHARM,
         channelId = PYCHARM_CHANNEL,
-        fullNumer = "203.7717.81",
+        fullNumber = "203.7717.81",
         version = "2019.3.5",
         releaseDate = LocalDate.of(2019, 12, 2)
     )
@@ -91,6 +90,21 @@ object TestingData {
         BuildInfoDto(
             buildId = buildId,
             info = info
+        )
+
+    fun buildUpdateInformation(
+        productName: String = PYCHARM,
+        channelId: String = PYCHARM_CHANNEL,
+        fullNumber: String = PYCHARM_FULL_NUMBER,
+        version: String = PYCHARM_VERSION,
+        releaseDate: LocalDate? = null
+    ) =
+        BuildUpdateInformation(
+            productName = productName,
+            channelId = channelId,
+            fullNumber = fullNumber,
+            version = version,
+            releaseDate = releaseDate
         )
 
     fun buildUpdatesInfo(): List<BuildUpdateInformation> {

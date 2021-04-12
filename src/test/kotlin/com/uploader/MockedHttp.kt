@@ -31,7 +31,7 @@ object MockedHttp {
                 addHandler { request ->
                     when (request.url.toString()) {
                         UPDATES_URL -> {
-                            respond(productsUpdates).also { putIfAbsentOrIncrement(UPDATES_URL) }
+                            respond(productsUpdates()).also { putIfAbsentOrIncrement(UPDATES_URL) }
                         }
                         DOWNLOAD_PYCHARM_URL -> {
                             respond(ByteReadChannel(pyCharmBuild)).also {

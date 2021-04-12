@@ -42,7 +42,7 @@ class BuildUpdatesPersisterTest : KoinTest {
         buildRepository.stub {
             onBlocking {
                 getByFullNumberAndChannel(
-                    ws1BuildUpdate.fullNumer,
+                    ws1BuildUpdate.fullNumber,
                     ws1BuildUpdate.channelId
                 )
             }.thenReturn(null)
@@ -54,7 +54,7 @@ class BuildUpdatesPersisterTest : KoinTest {
         // then
         runBlocking {
             verify(buildRepository).getByFullNumberAndChannel(
-                ws1BuildUpdate.fullNumer,
+                ws1BuildUpdate.fullNumber,
                 ws1BuildUpdate.channelId
             )
             verify(buildRepository).insert(wsBuildDto)
@@ -67,7 +67,7 @@ class BuildUpdatesPersisterTest : KoinTest {
         buildRepository.stub {
             onBlocking {
                 getByFullNumberAndChannel(
-                    ws1BuildUpdate.fullNumer,
+                    ws1BuildUpdate.fullNumber,
                     ws1BuildUpdate.channelId
                 )
             }.thenReturn(wsBuildDto)
@@ -79,7 +79,7 @@ class BuildUpdatesPersisterTest : KoinTest {
         // then
         runBlocking {
             verify(buildRepository).getByFullNumberAndChannel(
-                ws1BuildUpdate.fullNumer,
+                ws1BuildUpdate.fullNumber,
                 ws1BuildUpdate.channelId
             )
             verifyNoMoreInteractions(buildRepository)

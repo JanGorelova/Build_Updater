@@ -13,13 +13,13 @@ class BuildUpdatesPersister : KoinComponent {
     private val buildRepository by inject<BuildRepository>()
 
     suspend fun saveBuildUpdateIfRequired(buildUpdateInformation: BuildUpdateInformation) {
-        val fullNumber = buildUpdateInformation.fullNumer
+        val fullNumber = buildUpdateInformation.fullNumber
         val channelName = buildUpdateInformation.channelId
 
         if (buildRepository.getByFullNumberAndChannel(fullNumber, channelName) != null) return
 
         val buildDto = BuildDto(
-            fullNumber = buildUpdateInformation.fullNumer,
+            fullNumber = buildUpdateInformation.fullNumber,
             channelId = buildUpdateInformation.channelId,
             state = CREATED,
             version = buildUpdateInformation.version,

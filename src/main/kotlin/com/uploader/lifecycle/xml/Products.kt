@@ -29,10 +29,10 @@ data class Channel(
     val name: String,
     @field:JacksonXmlProperty(localName = "build")
     @field:JacksonXmlElementWrapper(useWrapping = false)
-    val builds: List<Build>
+    val builds: List<BuildData>
 )
 
-data class Build(
+data class BuildData(
     @field:JacksonXmlProperty(isAttribute = true)
     val number: String,
     @field:JacksonXmlProperty(isAttribute = true)

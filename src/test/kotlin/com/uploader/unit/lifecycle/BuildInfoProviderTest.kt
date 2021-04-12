@@ -55,7 +55,7 @@ class BuildInfoProviderTest : KoinTest {
         engine {
             addHandler { request ->
                 when (request.url.encodedPath) {
-                    "/updates/updates.xml" -> respond(productsUpdates)
+                    "/updates/updates.xml" -> respond(productsUpdates())
                     else -> error("Unknown url")
                 }
             }

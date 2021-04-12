@@ -1,5 +1,6 @@
 package com.uploader.unit.refresh
 
+import com.uploader.TestingData.buildUpdateInformation
 import com.uploader.TestingData.buildUpdatesInfo
 import com.uploader.TestingData.py1BuildUpdate
 import com.uploader.TestingData.py2BuildUpdate
@@ -46,9 +47,11 @@ class InformationRefresherTest : KoinTest {
     }
 
     @Test
-    fun `should refresh released less than year ago`() {
+    fun `should refresh released less than year ago and not eap or beta`() {
         // given
-        whenever(infoProvider.provide()).thenReturn(updates)
+        val eap = buildUpdateInformation(version = "2020 EAP")
+        val beta = buildUpdateInformation(version = "2021 Beta")
+        whenever(infoProvider.provide()).thenReturn(updates + eap + beta)
 
         // when
         runBlocking { InformationRefresher().refresh() }

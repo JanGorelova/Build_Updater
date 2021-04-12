@@ -1,7 +1,9 @@
 package com.uploader.lifecycle
 
 import com.fasterxml.jackson.dataformat.xml.XmlMapper
+import com.uploader.lifecycle.Constants.RIDER
 import com.uploader.lifecycle.Constants.UPDATES_URL
+import com.uploader.lifecycle.xml.BuildData
 import com.uploader.lifecycle.xml.Products
 import io.ktor.client.HttpClient
 import io.ktor.client.request.get
@@ -33,18 +35,25 @@ class BuildInfoProvider : KoinComponent {
                         BuildUpdateInformation(
                             productName = product.name,
                             channelId = channel.id,
-                            fullNumer = build.fullNumber ?: "Not specified",
-                            version = build.version,
+                            fullNumber = build.fullNumber ?: "Not specified",
+                            version = getVersion(build, product.name),
                             releaseDate = build.releaseDate
                         )
                     }
                 }
             }.toList()
 
+    // todo "Temporary for version fix for rider product with version 2020.1, should be 2020.1.0"
+    private fun getVersion(buildData: BuildData, productName: String) =
+        when {
+            productName == RIDER && buildData.version == "2020.1" -> "2020.1.0"
+            else -> buildData.version
+        }
+
     data class BuildUpdateInformation(
         val productName: String,
         val channelId: String,
-        val fullNumer: String,
+        val fullNumber: String,
         val version: String,
         val releaseDate: LocalDate?
     )
